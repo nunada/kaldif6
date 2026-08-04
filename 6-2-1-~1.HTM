@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turunan Sepihak</title>
+</head>
+<body>
+<header class="top">
+  <a class="backlink" href="index.html">&larr; Daftar Aktivitas</a>
+  <h1>6.2.1 &mdash; Turunan Sepihak</h1>
+  <p>Membandingkan turunan kiri dan turunan kanan</p>
+</header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab-btn active" data-target="panelA">🧭 Penjelasan Interaktif</button>
+    <button class="tab-btn" data-target="panelB">🎮 Game</button>
+  </div>
+  <div class="panel active" id="panelA">
+    
+<h2 class="sect">Turunan Kiri vs Turunan Kanan</h2>
+<p>Pilih fungsi, lalu geser |h| menuju 0. Amati apakah hasil bagi selisih dari kiri dan dari kanan menuju nilai yang <b>sama</b> atau <b>berbeda</b>.</p>
+<div class="controls"><label>Fungsi</label>
+<select id="fnSel4"><option value="0">f(x) = |x| di c = 0</option><option value="1">Fungsi Contoh 6.6 di c = 1</option></select></div>
+<canvas id="c4"></canvas>
+<div class="controls"><label>|h| = <span id="hVal4"></span></label><input type="range" id="hSlider4" min="0.02" max="1.5" step="0.02" value="1"></div>
+<div class="readout">
+<div class="chip">Kiri: [f(c&minus;h)&minus;f(c)]/(&minus;h)<b id="qlOut"></b></div>
+<div class="chip">Kanan: [f(c+h)&minus;f(c)]/h<b id="qrOut"></b></div>
+</div>
+<div class="note" id="verdict4"></div>
+
+  </div>
+  <div class="panel" id="panelB">
+    <h2 class="sect">Kuis: Kiri, Kanan, atau Sama?</h2>
+    <p>Sepuluh soal benar/salah dan pilihan ganda seputar turunan sepihak.</p>
+    <div id="gameRoot"></div>
+  </div>
+  <footer class="foot">Kalkulus Differensial &bull; Bab 6 Derivatif &bull; Sub-bab 6.2.1</footer>
+</div>
+<style>
+:root{ color-scheme: light; --navy:#1a3a5c; --red:#b5321a; --green:#2a7a2a; --bg:#f7f5f0; --card:#ffffff; }
+*{box-sizing:border-box;}
+body{margin:0;font-family:Georgia,'Times New Roman',serif;background:var(--bg);color:#222;}
+.wrap{max-width:720px;margin:0 auto;padding:18px 16px 60px;}
+header.top{background:var(--navy);color:#fff;padding:22px 16px 18px;text-align:center;}
+header.top h1{margin:0 0 4px;font-size:1.35rem;}
+header.top p{margin:0;font-size:.85rem;opacity:.85;}
+.backlink{display:inline-block;font-size:.8rem;color:#cfe0ee;text-decoration:none;margin-bottom:8px;opacity:.9;}
+.backlink:hover{text-decoration:underline;opacity:1;}
+.tabs{display:flex;gap:8px;margin:18px 0 14px;}
+.tab-btn{flex:1;padding:12px 8px;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;font-family:inherit;font-size:.95rem;font-weight:bold;cursor:pointer;}
+.tab-btn.active{background:var(--navy);color:#fff;}
+.panel{display:none;background:var(--card);border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.08);}
+.panel.active{display:block;}
+h2.sect{color:var(--navy);font-size:1.1rem;margin-top:0;}
+.note{background:#eef3f7;border-left:4px solid var(--navy);padding:10px 12px;border-radius:6px;font-size:.9rem;margin:12px 0;}
+canvas{width:100%;height:280px;background:#fff;border-radius:10px;border:1px solid #ddd;touch-action:none;}
+.controls{margin:14px 0;}
+.controls label{display:block;font-size:.88rem;margin-bottom:4px;font-weight:bold;color:var(--navy);}
+input[type=range]{width:100%;}
+select, input[type=number]{font-family:inherit;font-size:1rem;padding:8px;border-radius:8px;border:1px solid #bbb;width:100%;}
+.readout{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+.readout .chip{background:#eef3f7;border-radius:8px;padding:8px 12px;font-size:.9rem;flex:1;min-width:120px;text-align:center;}
+.readout .chip b{display:block;color:var(--red);font-size:1.15rem;}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+button.act{background:var(--red);color:#fff;border:none;padding:10px 16px;border-radius:8px;font-family:inherit;font-size:.9rem;cursor:pointer;}
+button.act.secondary{background:var(--navy);}
+.quiz-top{display:flex;justify-content:space-between;font-size:.85rem;color:var(--navy);font-weight:bold;margin-bottom:10px;}
+.quiz-q{font-size:1.05rem;margin-bottom:14px;line-height:1.4;}
+.quiz-choices{display:flex;flex-direction:column;gap:8px;}
+.quiz-choice{padding:12px;border-radius:8px;border:2px solid #ccc;background:#fff;font-family:inherit;font-size:.95rem;text-align:left;cursor:pointer;}
+.quiz-choice:hover{border-color:var(--navy);}
+.quiz-choice.correct{border-color:var(--green);background:#eaf7ea;font-weight:bold;}
+.quiz-choice.wrong{border-color:var(--red);background:#fbeaea;}
+.quiz-feedback{margin-top:14px;font-size:.92rem;}
+.quiz-feedback .ok{color:var(--green);font-weight:bold;}
+.quiz-feedback .no{color:var(--red);font-weight:bold;}
+.btn-next{margin-top:10px;background:var(--navy);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-family:inherit;cursor:pointer;}
+.quiz-end{text-align:center;padding:10px 0;}
+.quiz-end-score{font-size:2.6rem;color:var(--red);font-weight:bold;}
+.match-cols{display:flex;gap:10px;}
+.match-col{flex:1;display:flex;flex-direction:column;gap:8px;}
+.match-card{padding:10px 8px;border-radius:8px;border:2px solid #ccc;background:#fff;font-size:.85rem;cursor:pointer;text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center;}
+.match-card.sel{border-color:var(--navy);background:#eef3f7;}
+.match-card.matched{border-color:var(--green);background:#eaf7ea;opacity:.6;pointer-events:none;}
+.match-stats{display:flex;justify-content:space-between;font-size:.85rem;color:var(--navy);font-weight:bold;margin-bottom:10px;}
+.click-game-area{position:relative;}
+.click-target{position:absolute;width:26px;height:26px;border-radius:50%;background:rgba(181,50,26,.001);cursor:crosshair;transform:translate(-50%,-50%);}
+footer.foot{text-align:center;font-size:.75rem;color:#888;margin-top:24px;}
+@media(min-width:600px){canvas{height:340px;}}
+</style>
+<script>
+
+function $(sel,root){return (root||document).querySelector(sel);}
+function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+
+function initTabs(){
+  $all(".tab-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      $all(".tab-btn").forEach(b=>b.classList.remove("active"));
+      $all(".panel").forEach(p=>p.classList.remove("active"));
+      btn.classList.add("active");
+      $("#"+btn.dataset.target).classList.add("active");
+    });
+  });
+}
+
+class Grapher{
+  constructor(canvas,opts){
+    this.canvas=canvas; this.ctx=canvas.getContext("2d");
+    this.xmin=opts.xmin; this.xmax=opts.xmax; this.ymin=opts.ymin; this.ymax=opts.ymax;
+    this.pad=opts.pad||28;
+    this.resize();
+    window.addEventListener("resize",()=>this.resize());
+  }
+  resize(){
+    const dpr=window.devicePixelRatio||1;
+    const rect=this.canvas.getBoundingClientRect();
+    this.canvas.width=Math.max(1,rect.width*dpr); this.canvas.height=Math.max(1,rect.height*dpr);
+    this.ctx.setTransform(dpr,0,0,dpr,0,0);
+    this.w=rect.width; this.h=rect.height;
+  }
+  toPx(x,y){
+    const px=this.pad+(x-this.xmin)/(this.xmax-this.xmin)*(this.w-2*this.pad);
+    const py=this.h-this.pad-(y-this.ymin)/(this.ymax-this.ymin)*(this.h-2*this.pad);
+    return [px,py];
+  }
+  clear(){ this.ctx.clearRect(0,0,this.w,this.h); }
+  axes(){
+    const ctx=this.ctx; ctx.strokeStyle="#bbb"; ctx.lineWidth=1;
+    const [x0,y0]=this.toPx(Math.max(this.xmin,Math.min(0,this.xmax)),Math.max(this.ymin,Math.min(0,this.ymax)));
+    ctx.beginPath(); ctx.moveTo(this.pad,y0); ctx.lineTo(this.w-this.pad,y0); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x0,this.pad); ctx.lineTo(x0,this.h-this.pad); ctx.stroke();
+  }
+  curve(f,color,lw,dash){
+    const ctx=this.ctx; ctx.strokeStyle=color; ctx.lineWidth=lw||2.5; ctx.setLineDash(dash||[]);
+    ctx.beginPath(); let started=false; const N=260;
+    for(let i=0;i<=N;i++){
+      const x=this.xmin+(this.xmax-this.xmin)*i/N; let y;
+      try{ y=f(x); }catch(e){ y=NaN; }
+      if(typeof y!=="number"||!isFinite(y)||y<this.ymin-(this.ymax-this.ymin)*0.6||y>this.ymax+(this.ymax-this.ymin)*0.6){ started=false; continue; }
+      const [px,py]=this.toPx(x,y);
+      if(!started){ ctx.moveTo(px,py); started=true; } else ctx.lineTo(px,py);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  pt(x,y,color,r){ const ctx=this.ctx; const [px,py]=this.toPx(x,y); ctx.fillStyle=color||"#b5321a"; ctx.beginPath(); ctx.arc(px,py,r||6,0,7); ctx.fill(); }
+  seg(x1,y1,x2,y2,color,lw,dash){ const ctx=this.ctx; const [p1x,p1y]=this.toPx(x1,y1); const [p2x,p2y]=this.toPx(x2,y2); ctx.strokeStyle=color; ctx.lineWidth=lw||2; ctx.setLineDash(dash||[]); ctx.beginPath(); ctx.moveTo(p1x,p1y); ctx.lineTo(p2x,p2y); ctx.stroke(); ctx.setLineDash([]); }
+  txt(x,y,str,color,size,align){ const ctx=this.ctx; const [px,py]=this.toPx(x,y); ctx.fillStyle=color||"#1a3a5c"; ctx.font=(size||12)+"px Georgia,serif"; ctx.textAlign=align||"left"; ctx.fillText(str,px,py); }
+}
+
+class QuizEngine{
+  constructor(container,questions,opts){
+    this.container=container; this.questions=shuffle(questions); this.opts=opts||{};
+    this.i=0; this.score=0; this.streak=0; this.best=0;
+    this.render();
+  }
+  render(){
+    if(this.i>=this.questions.length){ this.renderEnd(); return; }
+    const q=this.questions[this.i];
+    this.container.innerHTML=
+      '<div class="quiz-top"><span>Soal '+(this.i+1)+' / '+this.questions.length+'</span><span>Skor: '+this.score+' &nbsp;🔥'+this.streak+'</span></div>'+
+      '<div class="quiz-q">'+q.q+'</div>'+
+      '<div class="quiz-choices">'+q.choices.map((c,idx)=>'<button class="quiz-choice" data-idx="'+idx+'">'+c+'</button>').join("")+'</div>'+
+      '<div class="quiz-feedback" id="qfb"></div>';
+    $all(".quiz-choice",this.container).forEach(btn=>{
+      btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
+    });
+  }
+  answer(idx,btn){
+    const q=this.questions[this.i];
+    const buttons=$all(".quiz-choice",this.container);
+    buttons.forEach(b=>b.disabled=true);
+    const fb=$("#qfb",this.container);
+    if(idx===q.correct){
+      btn.classList.add("correct");
+      this.score+=10+this.streak*2; this.streak++; this.best=Math.max(this.best,this.streak);
+      fb.innerHTML='<span class="ok">✔ Benar!</span> '+(q.explain||"");
+    } else {
+      btn.classList.add("wrong"); buttons[q.correct].classList.add("correct");
+      this.streak=0;
+      fb.innerHTML='<span class="no">✘ Kurang tepat.</span> '+(q.explain||"");
+    }
+    const next=document.createElement("button");
+    next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
+    next.onclick=()=>{ this.i++; this.render(); };
+    fb.appendChild(document.createElement("br")); fb.appendChild(next);
+  }
+  renderEnd(){
+    const pct=Math.round(100*this.score/(this.questions.length*10));
+    const msg = pct>=80 ? "Luar biasa! Pemahamanmu sudah mantap." : (pct>=50 ? "Lumayan — coba lagi untuk skor lebih tinggi." : "Yuk baca ulang materinya, lalu coba lagi!");
+    this.container.innerHTML='<div class="quiz-end"><div class="quiz-end-score">'+this.score+'</div>'+
+      '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
+      '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
+    $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+  }
+}
+
+class MatchEngine{
+  constructor(container,pairs,opts){
+    this.container=container; this.pairs=pairs; this.opts=opts||{};
+    this.selL=null; this.selR=null; this.matched=new Set(); this.moves=0;
+    this.left=shuffle(pairs.map((p,i)=>({k:i,t:p[0]})));
+    this.right=shuffle(pairs.map((p,i)=>({k:i,t:p[1]})));
+    this.render();
+  }
+  render(){
+    this.container.innerHTML =
+      '<div class="match-stats"><span>Langkah: <span id="mvcount">'+this.moves+'</span></span><span id="mvdone">'+this.matched.size+' / '+this.pairs.length+' cocok</span></div>'+
+      '<div class="match-cols"><div class="match-col" id="colL"></div><div class="match-col" id="colR"></div></div>';
+    const colL=$("#colL",this.container), colR=$("#colR",this.container);
+    this.left.forEach(item=>{
+      const b=document.createElement("button"); b.className="match-card"+(this.matched.has(item.k)?" matched":""); b.textContent=item.t; b.dataset.k=item.k;
+      b.onclick=()=>this.pick("L",item.k,b); colL.appendChild(b);
+    });
+    this.right.forEach(item=>{
+      const b=document.createElement("button"); b.className="match-card"+(this.matched.has(item.k)?" matched":""); b.textContent=item.t; b.dataset.k=item.k;
+      b.onclick=()=>this.pick("R",item.k,b); colR.appendChild(b);
+    });
+    if(this.matched.size===this.pairs.length){
+      const done=document.createElement("div"); done.className="note"; done.style.marginTop="12px";
+      done.innerHTML="🎉 Selesai dalam "+this.moves+" langkah! <button class=\"btn-next\" id=\"mrestart\">Ulangi</button>";
+      this.container.appendChild(done);
+      $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
+    }
+  }
+  pick(side,k,btn){
+    if(this.matched.has(k)&&btn.classList.contains("matched")) return;
+    if(side==="L"){ if(this.selL) this.selL.el.classList.remove("sel"); this.selL={k,el:btn}; btn.classList.add("sel"); }
+    else { if(this.selR) this.selR.el.classList.remove("sel"); this.selR={k,el:btn}; btn.classList.add("sel"); }
+    if(this.selL && this.selR){
+      this.moves++;
+      if(this.selL.k===this.selR.k){
+        this.matched.add(this.selL.k);
+        this.selL=null; this.selR=null;
+        this.render();
+      } else {
+        const l=this.selL.el, r=this.selR.el;
+        l.classList.add("wrong"); r.classList.add("wrong");
+        setTimeout(()=>{ l.classList.remove("wrong","sel"); r.classList.remove("wrong","sel"); this.selL=null; this.selR=null; $("#mvcount",this.container).textContent=this.moves; },500);
+      }
+    }
+  }
+}
+
+initTabs();
+
+(function(){
+  const presets=[
+    {f:x=>Math.abs(x), c:0, dom:[-2,2,-0.3,2]},
+    {f:x=>(x<=1? x*x : 3*x-2), c:1, dom:[-1,2.3,-0.5,3.5]}
+  ];
+  const sel=$('#fnSel4'), hSlider=$('#hSlider4');
+  const g=new Grapher($('#c4'),{xmin:-2,xmax:2,ymin:-0.3,ymax:2});
+  function update(){
+    const idx=parseInt(sel.value); const cur=presets[idx]; const c=cur.c;
+    g.xmin=cur.dom[0]; g.xmax=cur.dom[1]; g.ymin=cur.dom[2]; g.ymax=cur.dom[3];
+    const h=parseFloat(hSlider.value);
+    const fc=cur.f(c), fl=cur.f(c-h), fr=cur.f(c+h);
+    const ql=(fl-fc)/(-h), qr=(fr-fc)/(h);
+    g.clear(); g.axes(); g.curve(cur.f,'#1a3a5c',2.5);
+    g.seg(g.xmin, fc+ql*(g.xmin-c), c, fc, '#b5321a',2,[6,4]);
+    g.seg(c, fc, g.xmax, fc+qr*(g.xmax-c), '#2a7a2a',2,[6,4]);
+    g.pt(c,fc,'#1a3a5c',7); g.pt(c-h,fl,'#b5321a',5); g.pt(c+h,fr,'#2a7a2a',5);
+    $('#hVal4').textContent=fmt(h); $('#qlOut').textContent=fmt(ql); $('#qrOut').textContent=fmt(qr);
+    const verdict=$('#verdict4');
+    if(Math.abs(ql-qr)<0.05*Math.max(1,Math.abs(ql))+0.05 && h<0.1){
+      verdict.textContent="Untuk |h| sangat kecil, kedua nilai semakin berdekatan — kandidat kuat bahwa fungsi terdiferensialkan di titik ini (periksa nilai limitnya secara aljabar untuk kepastian).";
+    } else {
+      verdict.textContent="Bandingkan kedua nilai saat |h| diperkecil terus: pada f(x)=|x|, keduanya menuju angka yang tetap berbeda (−1 dan 1), sedangkan pada fungsi Contoh 6.6 keduanya menuju 2 dan 3 — dalam kedua kasus ini fungsi TIDAK terdiferensialkan di c.";
+    }
+  }
+  sel.addEventListener('change',update); hSlider.addEventListener('input',update); update();
+})();
+
+
+(function(){
+  const qs=[
+    {q:"Turunan kiri fungsi f di titik c dinotasikan&hellip;",choices:["f '(c)","f '&#8722;(c)","f ''(c)","f(c)"],correct:1},
+    {q:"Fungsi f terdiferensialkan di c jika dan hanya jika&hellip;",choices:["f kontinu di c","Turunan kiri dan kanan ada dan sama","Turunan kiri saja ada","f(c) = 0"],correct:1},
+    {q:"Untuk f(x)=|x| di x=0, turunan kirinya adalah&hellip;",choices:["1","&minus;1","0","tak terdefinisi (tak hingga)"],correct:1},
+    {q:"Untuk f(x)=|x| di x=0, turunan kanannya adalah&hellip;",choices:["1","&minus;1","0","tak terdefinisi"],correct:0},
+    {q:"Karena turunan kiri &ne; turunan kanan pada |x| di 0, maka&hellip;",choices:["f tidak kontinu di 0","f tidak terdiferensialkan di 0","f'(0) = 0","f naik tak hingga"],correct:1},
+    {q:"Jika turunan kiri dan kanan suatu fungsi di suatu titik SAMA, maka&hellip;",choices:["Fungsi pasti tidak kontinu","Fungsi terdiferensialkan di titik itu dengan nilai turunan tersebut","Fungsi harus konstan","Tidak bisa disimpulkan apa-apa"],correct:1},
+    {q:"Syarat keberadaan turunan sepihak berkaitan erat dengan konsep apa pada Bab 5?",choices:["Kekontinuan fungsi eksponensial","Limit satu arah (limit kiri dan kanan)","Deret tak hingga","Fungsi invers"],correct:1},
+    {q:"Pada Contoh 6.6 (f(x)=x&sup2; untuk x&le;1, 3x&minus;2 untuk x>1), turunan kiri di x=1 adalah&hellip;",choices:["3","2","1","0"],correct:1},
+    {q:"Pada Contoh 6.6, turunan kanan di x=1 adalah&hellip;",choices:["3","2","1","0"],correct:0},
+    {q:"Karena kedua turunan sepihak pada Contoh 6.6 berbeda (2 dan 3), grafiknya memiliki&hellip; di x=1",choices:["Titik loncatan (diskontinu)","Sudut tajam (meski kontinu)","Singgung vertikal","Tidak ada keanehan"],correct:1}
+  ];
+  new QuizEngine($('#gameRoot'), qs);
+})();
+
+</script>
+</body>
+</html>
