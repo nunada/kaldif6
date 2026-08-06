@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategi Memilih Aturan Turunan</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<header class="top">
+  <a class="backlink" href="index.html">&larr; Daftar Aktivitas</a>
+  <h1>6.7.4 &mdash; Strategi Memilih Aturan Turunan</h1>
+  <p>Kenali bentuk fungsi, lalu pilih aturan yang tepat</p>
+</header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab-btn active" data-target="panelA">🧭 Penjelasan Interaktif</button>
+    <button class="tab-btn" data-target="panelB">🎮 Game</button>
+  </div>
+  <div class="panel active" id="panelA">
+
+<h2 class="sect">Jelajahi Strategi Pemilihan Aturan</h2>
+<p>Klik salah satu fungsi di bawah untuk melihat aturan mana (Pangkat/Linearitas, Hasil Kali, Hasil Bagi, atau Tabel Rumus Dasar) yang paling tepat digunakan, beserta alasannya &mdash; sebelum menghitung turunannya secara lengkap.</p>
+<div class="btnrow" id="fnList"></div>
+<div class="note" id="explainBox">Pilih salah satu fungsi di atas untuk mulai menjelajah.</div>
+
+  </div>
+  <div class="panel" id="panelB">
+    <h2 class="sect">Kuis: Aturan Mana yang Tepat?</h2>
+    <p>Tanpa menghitung turunannya, tentukan aturan mana yang paling tepat digunakan untuk setiap fungsi. Jawab 10 soal!</p>
+    <div id="gameRoot"></div>
+  </div>
+  <footer class="foot">Kalkulus Differensial &bull; Bab 6 Derivatif &bull; Sub-bab 6.7.4</footer>
+</div>
+<style>
+:root{ color-scheme: light; --navy:#1a3a5c; --red:#b5321a; --green:#2a7a2a; --bg:#f7f5f0; --card:#ffffff; }
+*{box-sizing:border-box;}
+body{margin:0;font-family:Georgia,'Times New Roman',serif;background:var(--bg);color:#222;}
+.wrap{max-width:720px;margin:0 auto;padding:18px 16px 60px;}
+header.top{background:var(--navy);color:#fff;padding:22px 16px 18px;text-align:center;}
+header.top h1{margin:0 0 4px;font-size:1.35rem;}
+header.top p{margin:0;font-size:.85rem;opacity:.85;}
+.backlink{display:inline-block;font-size:.8rem;color:#cfe0ee;text-decoration:none;margin-bottom:8px;opacity:.9;}
+.backlink:hover{text-decoration:underline;opacity:1;}
+.tabs{display:flex;gap:8px;margin:18px 0 14px;}
+.tab-btn{flex:1;padding:12px 8px;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;font-family:inherit;font-size:.95rem;font-weight:bold;cursor:pointer;}
+.tab-btn.active{background:var(--navy);color:#fff;}
+.panel{display:none;background:var(--card);border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.08);}
+.panel.active{display:block;}
+h2.sect{color:var(--navy);font-size:1.1rem;margin-top:0;}
+.note{background:#eef3f7;border-left:4px solid var(--navy);padding:10px 12px;border-radius:6px;font-size:.9rem;margin:12px 0;}
+.controls{margin:14px 0;}
+.controls label{display:block;font-size:.88rem;margin-bottom:4px;font-weight:bold;color:var(--navy);}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+button.act{background:var(--red);color:#fff;border:none;padding:10px 16px;border-radius:8px;font-family:inherit;font-size:.9rem;cursor:pointer;}
+button.act.secondary{background:var(--navy);}
+.fn-btn{background:#fff;border:2px solid var(--navy);color:var(--navy);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:.9rem;cursor:pointer;}
+.fn-btn.sel{background:var(--navy);color:#fff;}
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:.82rem;font-weight:bold;color:#fff;margin-bottom:8px;}
+.badge.c0{background:#2a7a2a;}
+.badge.c1{background:#b5321a;}
+.badge.c2{background:#a05a1a;}
+.badge.c3{background:#1a3a5c;}
+.quiz-top{display:flex;justify-content:space-between;font-size:.85rem;color:var(--navy);font-weight:bold;margin-bottom:10px;}
+.quiz-q{font-size:1.05rem;margin-bottom:14px;line-height:1.4;}
+.quiz-choices{display:flex;flex-direction:column;gap:8px;}
+.quiz-choice{padding:12px;border-radius:8px;border:2px solid #ccc;background:#fff;font-family:inherit;font-size:.95rem;text-align:left;cursor:pointer;}
+.quiz-choice:hover{border-color:var(--navy);}
+.quiz-choice.correct{border-color:var(--green);background:#eaf7ea;font-weight:bold;}
+.quiz-choice.wrong{border-color:var(--red);background:#fbeaea;}
+.quiz-feedback{margin-top:14px;font-size:.92rem;}
+.quiz-feedback .ok{color:var(--green);font-weight:bold;}
+.quiz-feedback .no{color:var(--red);font-weight:bold;}
+.btn-next{margin-top:10px;background:var(--navy);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-family:inherit;cursor:pointer;}
+.quiz-end{text-align:center;padding:10px 0;}
+.quiz-end-score{font-size:2.6rem;color:var(--red);font-weight:bold;}
+footer.foot{text-align:center;font-size:.75rem;color:#888;margin-top:24px;}
+</style>
+<script>
+
+function $(sel,root){return (root||document).querySelector(sel);}
+function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
+
+function initTabs(){
+  $all(".tab-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      $all(".tab-btn").forEach(b=>b.classList.remove("active"));
+      $all(".panel").forEach(p=>p.classList.remove("active"));
+      btn.classList.add("active");
+      $("#"+btn.dataset.target).classList.add("active");
+    });
+  });
+}
+
+class QuizEngine{
+  constructor(container,questions,opts){
+    this.container=container; this.questions=shuffle(questions); this.opts=opts||{};
+    this.i=0; this.score=0; this.streak=0; this.best=0;
+    this.render();
+  }
+  render(){
+    if(this.i>=this.questions.length){ this.renderEnd(); return; }
+    const q=this.questions[this.i];
+    this.container.innerHTML=
+      '<div class="quiz-top"><span>Soal '+(this.i+1)+' / '+this.questions.length+'</span><span>Skor: '+this.score+' &nbsp;🔥'+this.streak+'</span></div>'+
+      '<div class="quiz-q">'+q.q+'</div>'+
+      '<div class="quiz-choices">'+q.choices.map((c,idx)=>'<button class="quiz-choice" data-idx="'+idx+'">'+c+'</button>').join("")+'</div>'+
+      '<div class="quiz-feedback" id="qfb"></div>';
+    $all(".quiz-choice",this.container).forEach(btn=>{
+      btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
+    });
+    typesetMath(this.container);
+  }
+  answer(idx,btn){
+    const q=this.questions[this.i];
+    const buttons=$all(".quiz-choice",this.container);
+    buttons.forEach(b=>b.disabled=true);
+    const fb=$("#qfb",this.container);
+    if(idx===q.correct){
+      btn.classList.add("correct");
+      this.score+=10+this.streak*2; this.streak++; this.best=Math.max(this.best,this.streak);
+      fb.innerHTML='<span class="ok">✔ Benar!</span> '+(q.explain||"");
+    } else {
+      btn.classList.add("wrong"); buttons[q.correct].classList.add("correct");
+      this.streak=0;
+      fb.innerHTML='<span class="no">✘ Kurang tepat.</span> '+(q.explain||"");
+    }
+    const next=document.createElement("button");
+    next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
+    next.onclick=()=>{ this.i++; this.render(); };
+    fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
+  }
+  renderEnd(){
+    const pct=Math.round(100*this.score/(this.questions.length*10));
+    const msg = pct>=80 ? "Luar biasa! Strategi pemilihan aturanmu sudah tajam." : (pct>=50 ? "Lumayan — coba lagi untuk skor lebih tinggi." : "Yuk tinjau ulang Gambar 6.18 dan Tabel 6.4, lalu coba lagi!");
+    this.container.innerHTML='<div class="quiz-end"><div class="quiz-end-score">'+this.score+'</div>'+
+      '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
+      '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
+    $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
+  }
+}
+
+initTabs();
+
+(function(){
+  const CATS=[
+    {name:"Aturan Pangkat / Linearitas", cls:"c0"},
+    {name:"Aturan Hasil Kali", cls:"c1"},
+    {name:"Aturan Hasil Bagi", cls:"c2"},
+    {name:"Tabel Rumus Dasar", cls:"c3"}
+  ];
+  const items=[
+    {label:"\\(f(x)=5x^4-3x^2+8\\)", cat:0, why:"Hanya berisi suku pangkat dan konstanta &mdash; cukup Aturan Pangkat + Linearitas (Sub-bab 6.5).", deriv:"\\(f'(x)=20x^3-6x\\)"},
+    {label:"\\(f(x)=x^3\\ln x\\)", cat:1, why:"Hasil kali dua fungsi tak-konstan, \\(x^3\\) dan \\(\\ln x\\) &mdash; pakai Aturan Hasil Kali (Sub-bab 6.6).", deriv:"\\(f'(x)=3x^2\\ln x + x^2\\)"},
+    {label:"\\(f(x)=\\dfrac{x^2+1}{x-3}\\)", cat:2, why:"Berbentuk pembilang per penyebut yang keduanya fungsi &mdash; pakai Aturan Hasil Bagi (Sub-bab 6.6).", deriv:"\\(f'(x)=\\dfrac{x^2-6x-1}{(x-3)^2}\\)"},
+    {label:"\\(f(x)=\\sinh x\\)", cat:3, why:"Fungsi hiperbolik dasar tunggal &mdash; langsung ambil dari Tabel Rumus Dasar (Sub-bab 6.7.3).", deriv:"\\(f'(x)=\\cosh x\\)"},
+    {label:"\\(f(x)=xe^x\\)", cat:1, why:"Hasil kali \\(x\\) dan \\(e^x\\) &mdash; pakai Aturan Hasil Kali.", deriv:"\\(f'(x)=e^x(x+1)\\)"},
+    {label:"\\(f(x)=\\dfrac{\\sin x}{x}\\)", cat:2, why:"Berbentuk pembagian \\(\\sin x\\) oleh \\(x\\) &mdash; pakai Aturan Hasil Bagi.", deriv:"\\(f'(x)=\\dfrac{x\\cos x-\\sin x}{x^2}\\)"},
+    {label:"\\(f(x)=3^x\\)", cat:3, why:"Fungsi eksponensial basis umum &mdash; langsung ambil dari Tabel Rumus Dasar (Sub-bab 6.7.2).", deriv:"\\(f'(x)=3^x\\ln 3\\)"},
+    {label:"\\(f(x)=7x^{10}-x\\)", cat:0, why:"Suku banyak sederhana &mdash; cukup Aturan Pangkat + Linearitas.", deriv:"\\(f'(x)=70x^9-1\\)"}
+  ];
+  const list=$('#fnList'); const box=$('#explainBox');
+  items.forEach((it,idx)=>{
+    const b=document.createElement('button'); b.className='fn-btn'; b.innerHTML=it.label;
+    b.onclick=()=>{
+      $all('.fn-btn',list).forEach(x=>x.classList.remove('sel')); b.classList.add('sel');
+      const c=CATS[it.cat];
+      box.innerHTML='<span class="badge '+c.cls+'">'+c.name+'</span><br>'+it.label+'<br>'+it.why+'<br>Hasil: '+it.deriv;
+      typesetMath(box);
+    };
+    list.appendChild(b);
+  });
+  typesetMath(list);
+})();
+
+(function(){
+  const qs=[
+    {q:"\\(f(x)=x^6-4x^3+1\\) &mdash; aturan apa yang paling tepat?",
+     choices:["Aturan Pangkat/Linearitas","Aturan Hasil Kali","Aturan Hasil Bagi","Tabel Rumus Dasar"], correct:0,
+     explain:"Hanya suku pangkat dan konstanta, tidak ada perkalian/pembagian dua fungsi."},
+    {q:"\\(f(x)=x\\cos x\\) &mdash; aturan apa yang paling tepat?",
+     choices:["Aturan Pangkat/Linearitas","Aturan Hasil Kali","Aturan Hasil Bagi","Tabel Rumus Dasar"], correct:1,
+     explain:"\\(x\\) dan \\(\\cos x\\) dikalikan &mdash; dua fungsi, bukan satu suku."},
+    {q:"\\(f(x)=\\dfrac{x-2}{x+5}\\) &mdash; aturan apa yang paling tepat?",
+     choices:["Aturan Pangkat/Linearitas","Aturan Hasil Kali","Aturan Hasil Bagi","Tabel Rumus Dasar"], correct:2,
+     explain:"Bentuk pembilang per penyebut, keduanya fungsi dari \\(x\\)."},
+    {q:"\\(f(x)=\\cos x\\) &mdash; aturan apa yang paling tepat?",
+     choices:["Aturan Pangkat/Linearitas","Aturan Hasil Kali","Aturan Hasil Bagi","Tabel Rumus Dasar"], correct:3,
+     explain:"Fungsi trigonometri dasar tunggal, langsung dari tabel &mdash; tidak perlu aturan hasil bagi meski \\(\\cos x\\) berasal dari \\(\\sin\\) dan \\(\\cos\\)."},
+    {q:"\\(f(x)=x^2e^x\\) &mdash; aturan apa yang paling tepat?",
+     choices:["Aturan Pangkat/Linearitas","Aturan Hasil Kali","Aturan Hasil Bagi","Tabel Rumus Dasar"], correct:1,
+     explain:"\\(x^2\\) dan \\(e^x\\) dikalikan."},
+    {q:"\\(f(x)=\\dfrac{e^x}{x}\\) &mdash; aturan apa yang paling tepat?",
+     choices:["Aturan Pangkat/Linearitas","Aturan Hasil Kali","Aturan Hasil Bagi","Tabel Rumus Dasar"], correct:2,
+     explain:"Bentuk pembagian \\(e^x\\) oleh \\(x\\)."},
+    {q:"\\(f(x)=\\cot x\\) &mdash; aturan apa yang paling tepat?",
+     choices:["Aturan Pangkat/Linearitas","Aturan Hasil Kali","Aturan Hasil Bagi","Tabel Rumus Dasar"], correct:3,
+     explain:"Meski \\(\\cot x=\\cos x/\\sin x\\) secara internal, rumus \\(D_x[\\cot x]=-\\csc^2 x\\) sudah tersedia langsung di tabel &mdash; tidak perlu diturunkan ulang."},
+    {q:"\\(f(x)=4x^9-2x^2\\) &mdash; aturan apa yang paling tepat?",
+     choices:["Aturan Pangkat/Linearitas","Aturan Hasil Kali","Aturan Hasil Bagi","Tabel Rumus Dasar"], correct:0,
+     explain:"Suku banyak biasa."},
+    {q:"\\(f(x)=(\\ln x)(\\sin x)\\) &mdash; aturan apa yang paling tepat?",
+     choices:["Aturan Pangkat/Linearitas","Aturan Hasil Kali","Aturan Hasil Bagi","Tabel Rumus Dasar"], correct:1,
+     explain:"\\(\\ln x\\) dan \\(\\sin x\\) dikalikan &mdash; dua fungsi berbeda."},
+    {q:"\\(f(x)=\\log_5 x\\) &mdash; aturan apa yang paling tepat?",
+     choices:["Aturan Pangkat/Linearitas","Aturan Hasil Kali","Aturan Hasil Bagi","Tabel Rumus Dasar"], correct:3,
+     explain:"Fungsi logaritma basis umum, langsung dari tabel: \\(D_x[\\log_a x]=1/(x\\ln a)\\)."}
+  ];
+  new QuizEngine($('#gameRoot'), qs);
+})();
+
+typesetMath(document.body);
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Turunan Secara Umum</title>
+<title>Hubungan Grafik f dan Grafik f'</title>
 <script>
 window.MathJax = {
   tex: {
@@ -20,8 +20,8 @@ window.MathJax = {
 <body>
 <header class="top">
   <a class="backlink" href="index.html">&larr; Daftar Aktivitas</a>
-  <h1>6.1.3 &mdash; Turunan Secara Umum</h1>
-  <p>Melihat f(x) dan f'(x) bergerak bersamaan</p>
+  <h1>6.1.4 &mdash; Hubungan Grafik f dan Grafik f'</h1>
+  <p>Membaca turunan langsung dari bentuk grafiknya</p>
 </header>
 <div class="wrap">
   <div class="tabs">
@@ -29,24 +29,26 @@ window.MathJax = {
     <button class="tab-btn" data-target="panelB">🎮 Game</button>
   </div>
   <div class="panel active" id="panelA">
-    
-<h2 class="sect">\(f(x)\) dan \(f'(x)\) Berdampingan</h2>
-<p>Geser titik x pada kurva \(f(x) = \frac{1}{3}x^3 - x\). Panel bawah menunjukkan grafik \(f'(x) = x^2 - 1\) dengan titik yang bergerak sesuai posisi x &mdash; perhatikan saat garis singgung mendatar (kemiringan 0), titik pada grafik \(f'\) berada tepat di sumbu-x.</p>
-<canvas id="c3a"></canvas>
-<div class="controls"><label>x = <span id="xVal3"></span></label><input type="range" id="xSlider3" min="-2.2" max="2.2" step="0.02" value="-1.5"></div>
-<canvas id="c3b"></canvas>
+
+<h2 class="sect">Geser Titik, Amati Kedua Grafik</h2>
+<p>Perhatikan \(f(x) = \tfrac{1}{3}x^3 - x\) (atas) dan turunannya \(f'(x) = x^2 - 1\) (bawah). Wilayah hijau menandai selang \(f\) naik \((f'>0)\), wilayah merah muda menandai selang \(f\) turun \((f'<0)\). Geser penggeser untuk menjelajah hubungan keduanya.</p>
+<canvas id="cTop"></canvas>
+<div class="controls"><label>x = <span id="xVal"></span></label><input type="range" id="xSlider" min="-2.2" max="2.2" step="0.02" value="-2.0"></div>
+<canvas id="cBot"></canvas>
 <div class="readout">
 <div class="chip">\(f(x)\)<b id="fxOut"></b></div>
-<div class="chip">\(f'(x)\) = kemiringan<b id="fpxOut"></b></div>
+<div class="chip">\(f'(x)\)<b id="fpxOut"></b></div>
+<div class="chip">Status \(f\) di titik ini<b id="statusOut"></b></div>
 </div>
+<div class="note" id="hintNote">Mulai dari kiri: perhatikan \(f\) sedang naik selama \(f'(x)>0\) (grafik \(f'\) di atas sumbu-\(x\)).</div>
 
   </div>
   <div class="panel" id="panelB">
-    <h2 class="sect">Cocokkan Fungsi dengan Turunannya</h2>
-    <p>Klik satu kartu di kolom kiri (fungsi) lalu pasangannya di kolom kanan (turunannya).</p>
+    <h2 class="sect">Kuis: Membaca Grafik f dan f'</h2>
+    <p>Uji pemahamanmu tentang hubungan antara bentuk grafik \(f\) dan tanda/nilai \(f'(x)\). Jawab 10 soal!</p>
     <div id="gameRoot"></div>
   </div>
-  <footer class="foot">Kalkulus Differensial &bull; Bab 6 Derivatif &bull; Sub-bab 6.1.3</footer>
+  <footer class="foot">Kalkulus Differensial &bull; Bab 6 Derivatif &bull; Sub-bab 6.1.4</footer>
 </div>
 <style>
 :root{ color-scheme: light; --navy:#1a3a5c; --red:#b5321a; --green:#2a7a2a; --bg:#f7f5f0; --card:#ffffff; }
@@ -65,7 +67,7 @@ header.top p{margin:0;font-size:.85rem;opacity:.85;}
 .panel.active{display:block;}
 h2.sect{color:var(--navy);font-size:1.1rem;margin-top:0;}
 .note{background:#eef3f7;border-left:4px solid var(--navy);padding:10px 12px;border-radius:6px;font-size:.9rem;margin:12px 0;}
-canvas{width:100%;height:280px;background:#fff;border-radius:10px;border:1px solid #ddd;touch-action:none;}
+canvas{width:100%;height:220px;background:#fff;border-radius:10px;border:1px solid #ddd;touch-action:none;}
 .controls{margin:14px 0;}
 .controls label{display:block;font-size:.88rem;margin-bottom:4px;font-weight:bold;color:var(--navy);}
 input[type=range]{width:100%;}
@@ -95,10 +97,8 @@ button.act.secondary{background:var(--navy);}
 .match-card.sel{border-color:var(--navy);background:#eef3f7;}
 .match-card.matched{border-color:var(--green);background:#eaf7ea;opacity:.6;pointer-events:none;}
 .match-stats{display:flex;justify-content:space-between;font-size:.85rem;color:var(--navy);font-weight:bold;margin-bottom:10px;}
-.click-game-area{position:relative;}
-.click-target{position:absolute;width:26px;height:26px;border-radius:50%;background:rgba(181,50,26,.001);cursor:crosshair;transform:translate(-50%,-50%);}
 footer.foot{text-align:center;font-size:.75rem;color:#888;margin-top:24px;}
-@media(min-width:600px){canvas{height:340px;}}
+@media(min-width:600px){canvas{height:260px;}}
 </style>
 <script>
 
@@ -144,6 +144,10 @@ class Grapher{
     return [px,py];
   }
   clear(){ this.ctx.clearRect(0,0,this.w,this.h); }
+  vband(x1,x2,color){
+    const ctx=this.ctx; const [p1x]=this.toPx(x1,0); const [p2x]=this.toPx(x2,0);
+    ctx.fillStyle=color; ctx.fillRect(p1x,this.pad*0.2,p2x-p1x,this.h-this.pad*0.2-2);
+  }
   axes(){
     const ctx=this.ctx; ctx.strokeStyle="#bbb"; ctx.lineWidth=1;
     const [x0,y0]=this.toPx(Math.max(this.xmin,Math.min(0,this.xmax)),Math.max(this.ymin,Math.min(0,this.ymax)));
@@ -217,86 +221,70 @@ class QuizEngine{
   }
 }
 
-class MatchEngine{
-  constructor(container,pairs,opts){
-    this.container=container; this.pairs=pairs; this.opts=opts||{};
-    this.selL=null; this.selR=null; this.matched=new Set(); this.moves=0;
-    this.left=shuffle(pairs.map((p,i)=>({k:i,t:p[0]})));
-    this.right=shuffle(pairs.map((p,i)=>({k:i,t:p[1]})));
-    this.render();
-  }
-  render(){
-    this.container.innerHTML =
-      '<div class="match-stats"><span>Langkah: <span id="mvcount">'+this.moves+'</span></span><span id="mvdone">'+this.matched.size+' / '+this.pairs.length+' cocok</span></div>'+
-      '<div class="match-cols"><div class="match-col" id="colL"></div><div class="match-col" id="colR"></div></div>';
-    const colL=$("#colL",this.container), colR=$("#colR",this.container);
-    this.left.forEach(item=>{
-      const b=document.createElement("button"); b.className="match-card"+(this.matched.has(item.k)?" matched":""); b.textContent=item.t; b.dataset.k=item.k;
-      b.onclick=()=>this.pick("L",item.k,b); colL.appendChild(b);
-    });
-    this.right.forEach(item=>{
-      const b=document.createElement("button"); b.className="match-card"+(this.matched.has(item.k)?" matched":""); b.textContent=item.t; b.dataset.k=item.k;
-      b.onclick=()=>this.pick("R",item.k,b); colR.appendChild(b);
-    });
-    if(this.matched.size===this.pairs.length){
-      const done=document.createElement("div"); done.className="note"; done.style.marginTop="12px";
-      done.innerHTML="🎉 Selesai dalam "+this.moves+" langkah! <button class=\"btn-next\" id=\"mrestart\">Ulangi</button>";
-      this.container.appendChild(done);
-      $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
-    }
-    typesetMath(this.container);
-  }
-  pick(side,k,btn){
-    if(this.matched.has(k)&&btn.classList.contains("matched")) return;
-    if(side==="L"){ if(this.selL) this.selL.el.classList.remove("sel"); this.selL={k,el:btn}; btn.classList.add("sel"); }
-    else { if(this.selR) this.selR.el.classList.remove("sel"); this.selR={k,el:btn}; btn.classList.add("sel"); }
-    if(this.selL && this.selR){
-      this.moves++;
-      if(this.selL.k===this.selR.k){
-        this.matched.add(this.selL.k);
-        this.selL=null; this.selR=null;
-        this.render();
-      } else {
-        const l=this.selL.el, r=this.selR.el;
-        l.classList.add("wrong"); r.classList.add("wrong");
-        setTimeout(()=>{ l.classList.remove("wrong","sel"); r.classList.remove("wrong","sel"); this.selL=null; this.selR=null; $("#mvcount",this.container).textContent=this.moves; },500);
-      }
-    }
-  }
-}
-
 initTabs();
 
 (function(){
   const f=x=>(1/3)*Math.pow(x,3)-x, fp=x=>x*x-1;
-  const g1=new Grapher($('#c3a'),{xmin:-2.5,xmax:2.5,ymin:-2,ymax:2});
-  const g2=new Grapher($('#c3b'),{xmin:-2.5,xmax:2.5,ymin:-1.5,ymax:3.5});
-  const slider=$('#xSlider3');
+  const gTop=new Grapher($('#cTop'),{xmin:-2.4,xmax:2.4,ymin:-2,ymax:2});
+  const gBot=new Grapher($('#cBot'),{xmin:-2.4,xmax:2.4,ymin:-1.6,ymax:3.2});
+  const slider=$('#xSlider');
   function update(){
     const x0=parseFloat(slider.value); const y0=f(x0), m=fp(x0);
-    g1.clear(); g1.axes(); g1.curve(f,'#1a3a5c',2.5);
-    g1.seg(x0-1,y0-m,x0+1,y0+m,'#b5321a',2.2);
-    g1.pt(x0,y0,'#b5321a',6);
-    g2.clear(); g2.axes(); g2.curve(fp,'#a05a1a',2.5);
-    g2.pt(x0,m,'#b5321a',6);
-    g2.txt(-2.3,3.2,"grafik f '(x)",'#a05a1a',12);
-    $('#xVal3').textContent=fmt(x0); $('#fxOut').textContent=fmt(y0); $('#fpxOut').textContent=fmt(m);
+    gTop.clear();
+    gTop.vband(-2.4,-1,'#e5f3e6'); gTop.vband(-1,1,'#fbeae8'); gTop.vband(1,2.4,'#e5f3e6');
+    gTop.axes(); gTop.curve(f,'#1a3a5c',2.5);
+    gTop.seg(x0-0.7,y0-m*0.7,x0+0.7,y0+m*0.7,'#b5321a',2.2);
+    gTop.pt(x0,y0,'#b5321a',6);
+    gBot.clear();
+    gBot.vband(-2.4,-1,'#e5f3e6'); gBot.vband(-1,1,'#fbeae8'); gBot.vband(1,2.4,'#e5f3e6');
+    gBot.axes(); gBot.curve(fp,'#8b3a9e',2.5);
+    gBot.pt(x0,m,'#b5321a',6);
+    gBot.txt(-2.3,2.9,"grafik f '(x)",'#8b3a9e',12);
+    $('#xVal').textContent=fmt(x0); $('#fxOut').textContent=fmt(y0); $('#fpxOut').textContent=fmt(m);
+    let status, hint;
+    if(Math.abs(m)<0.03){ status="Stasioner (f' = 0)"; hint="Di titik ini garis singgung mendatar — kandidat titik ekstrem lokal."; }
+    else if(m>0){ status="Naik (f' > 0)"; hint="f' bernilai positif di sini, sehingga grafik f sedang menaik."; }
+    else { status="Turun (f' < 0)"; hint="f' bernilai negatif di sini, sehingga grafik f sedang menurun."; }
+    $('#statusOut').textContent=status;
+    $('#hintNote').innerHTML=hint;
   }
   slider.addEventListener('input',update); update();
 })();
 
-
 (function(){
-  const pairs=[
-    ["\\(f(x) = x^2\\)","\\(f'(x) = 2x\\)"],
-    ["\\(f(x) = x^3\\)","\\(f'(x) = 3x^2\\)"],
-    ["\\(f(x) = 1/x\\)","\\(f'(x) = -1/x^2\\)"],
-    ["\\(f(x) = \\sqrt{x}\\)","\\(f'(x) = 1/(2\\sqrt{x})\\)"],
-    ["\\(f(x) = x^2 + 3x\\)","\\(f'(x) = 2x + 3\\)"],
-    ["\\(f(x) = 5\\) (konstan)","\\(f'(x) = 0\\)"],
-    ["\\(f(x) = 4x\\)","\\(f'(x) = 4\\)"]
+  const qs=[
+    {q:"Jika \\(f'(x) > 0\\) pada suatu selang, maka pada selang tersebut grafik \\(f\\) &hellip;",
+     choices:["Naik","Turun","Mendatar (konstan)","Tidak dapat ditentukan"], correct:0,
+     explain:"\\(f'>0\\) berarti kemiringan garis singgung positif, sehingga \\(f\\) menaik."},
+    {q:"Jika \\(f'(x) < 0\\) pada suatu selang, maka pada selang tersebut grafik \\(f\\) &hellip;",
+     choices:["Naik","Turun","Mendatar (konstan)","Melengkung ke atas"], correct:1,
+     explain:"\\(f'<0\\) berarti kemiringan negatif, sehingga \\(f\\) menurun."},
+    {q:"Titik di mana grafik \\(f\\) memiliki garis singgung mendatar berpadanan dengan &hellip;",
+     choices:["\\(f'(x)=0\\)","\\(f(x)=0\\)","\\(f''(x)=0\\)","\\(f(x)\\) tak terdefinisi"], correct:0,
+     explain:"Garis singgung mendatar artinya kemiringannya nol, yaitu \\(f'(x)=0\\)."},
+    {q:"Jika grafik \\(f'\\) berada di atas sumbu-\\(x\\) pada selang \\((2,5)\\), maka pada selang itu \\(f\\) bersifat &hellip;",
+     choices:["Naik","Turun","Konstan","Diskontinu"], correct:0,
+     explain:"Grafik \\(f'\\) di atas sumbu-\\(x\\) berarti \\(f'>0\\), sehingga \\(f\\) naik."},
+    {q:"Semakin curam kemiringan grafik \\(f\\) di suatu titik, maka &hellip;",
+     choices:["\\(|f'(x)|\\) semakin besar","\\(f(x)\\) semakin besar","\\(f'(x)=0\\)","grafik \\(f\\) semakin mendatar"], correct:0,
+     explain:"Kecuraman garis singgung diukur oleh besar (nilai mutlak) kemiringannya, \\(|f'(x)|\\)."},
+    {q:"Grafik \\(f'\\) memotong sumbu-\\(x\\) dari negatif ke positif di \\(x=c\\). Maka di \\(x=c\\), grafik \\(f\\) memiliki &hellip;",
+     choices:["Minimum lokal","Maksimum lokal","Titik belok tanpa ekstrem","Diskontinuitas"], correct:0,
+     explain:"\\(f'\\) berubah dari negatif (\\(f\\) turun) ke positif (\\(f\\) naik) &mdash; pola ini adalah ciri minimum lokal."},
+    {q:"Sebaliknya, jika \\(f'\\) berubah dari positif ke negatif di \\(x=c\\), maka \\(x=c\\) adalah &hellip;",
+     choices:["Minimum lokal","Maksimum lokal","Titik infleksi","Tidak dapat disimpulkan"], correct:1,
+     explain:"\\(f\\) naik lalu turun &mdash; pola ini adalah ciri maksimum lokal."},
+    {q:"Jika grafik \\(f\\) berupa garis lurus dengan kemiringan tetap \\(m\\), maka grafik \\(f'\\) berupa &hellip;",
+     choices:["Garis mendatar \\(y=m\\)","Garis miring","Parabola","Kurva eksponensial"], correct:0,
+     explain:"Karena kemiringan \\(f\\) selalu \\(m\\) di semua titik, \\(f'(x)=m\\) untuk semua \\(x\\) &mdash; garis mendatar."},
+    {q:"Diberikan \\(f(x)=\\tfrac13x^3-x\\). Pada selang manakah \\(f'(x)\\) bernilai negatif?",
+     choices:["\\((-1,1)\\)","\\((-\\infty,-1)\\)","\\((1,\\infty)\\)","Seluruh bilangan real"], correct:0,
+     explain:"\\(f'(x)=x^2-1<0 \\iff -1<x<1\\), sesuai grafik pada tab Penjelasan Interaktif."},
+    {q:"Mengapa mengamati grafik \\(f\\) dan \\(f'\\) bersamaan berguna sebelum menghitung turunan secara aljabar?",
+     choices:["Untuk memeriksa kewajaran hasil perhitungan","Karena wajib dalam ujian","Karena \\(f'\\) selalu sama dengan \\(f\\)","Tidak ada gunanya"], correct:0,
+     explain:"Intuisi grafis membantu mendeteksi kesalahan aljabar &mdash; jika hasil hitung tidak cocok dengan bentuk grafik, ada yang perlu diperiksa ulang."}
   ];
-  new MatchEngine($('#gameRoot'), pairs);
+  new QuizEngine($('#gameRoot'), qs);
 })();
 
 typesetMath(document.body);
