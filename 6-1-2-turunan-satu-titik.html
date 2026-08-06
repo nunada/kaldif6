@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Turunan pada Satu Titik</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
@@ -19,17 +31,17 @@
   <div class="panel active" id="panelA">
     
 <h2 class="sect">Kalkulator Hasil Bagi Selisih</h2>
-<p>Pilih fungsi, titik c, lalu geser nilai h mendekati 0. Amati bagaimana hasil bagi selisih mendekati nilai f&prime;(c).</p>
+<p>Pilih fungsi, titik c, lalu geser nilai h mendekati 0. Amati bagaimana hasil bagi selisih mendekati nilai \(f'(c)\).</p>
 <div class="controls"><label>Fungsi f(x)</label>
-<select id="fnSel"><option value="0">f(x) = x&sup2; + 3x</option><option value="1">f(x) = 1/x</option><option value="2">f(x) = &radic;x</option></select></div>
+<select id="fnSel"><option value="0">f(x) = x² + 3x</option><option value="1">f(x) = 1/x</option><option value="2">f(x) = √x</option></select></div>
 <div class="controls"><label>Titik c: <span id="cVal"></span></label><input type="range" id="cSlider" min="0.5" max="4" step="0.1" value="2"></div>
 <div class="controls"><label>h: <span id="hVal2"></span></label><input type="range" id="hSlider2" min="-2" max="2" step="0.01" value="1"></div>
 <canvas id="canvas2"></canvas>
 <div class="readout">
-<div class="chip">[f(c+h)&minus;f(c)]/h<b id="dqOut"></b></div>
-<div class="chip">f&prime;(c) sebenarnya<b id="trueOut"></b></div>
+<div class="chip">\(\dfrac{f(c+h)-f(c)}{h}\)<b id="dqOut"></b></div>
+<div class="chip">\(f'(c)\) sebenarnya<b id="trueOut"></b></div>
 </div>
-<div class="note">Perhatikan: makin kecil |h|, makin dekat nilai hasil bagi selisih ke f&prime;(c) &mdash; itulah isi Definisi 6.1.</div>
+<div class="note">Perhatikan: makin kecil |h|, makin dekat nilai hasil bagi selisih ke \(f'(c)\) &mdash; itulah isi Definisi 6.1.</div>
 
   </div>
   <div class="panel" id="panelB">
@@ -97,6 +109,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -170,6 +187,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -189,6 +207,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -197,6 +216,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -227,6 +247,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -278,20 +299,21 @@ initTabs();
 
 (function(){
   const qs=[
-    {q:"Jika f(x) = x&sup2;, berapa f&prime;(3) menurut definisi limit?",choices:["6","9","3","0"],correct:0,explain:"f&prime;(x)=2x, sehingga f&prime;(3)=6."},
-    {q:"Bentuk hasil bagi selisih [f(c+h)&minus;f(c)]/h akan mendekati&hellip; saat h&rarr;0",choices:["f(c)","f&prime;(c)","c","0 selalu"],correct:1},
-    {q:"Jika f(x) = 5 (konstan), berapa f&prime;(c) untuk semua c?",choices:["5","1","0","c"],correct:2},
-    {q:"Untuk f(x) = 2x + 1, nilai f&prime;(c) untuk semua c adalah&hellip;",choices:["2","1","2c+1","c"],correct:0},
-    {q:"Bentuk pendekatan (x&rarr;c) dari turunan adalah&hellip;",choices:["lim<sub>x&rarr;c</sub> [f(x)&minus;f(c)]/(x&minus;c)","lim<sub>x&rarr;c</sub> f(x)","f(x)/x","f(c)/c"],correct:0},
-    {q:"Jika f(x)=x&sup3;, berapa f&prime;(2)?",choices:["8","6","12","4"],correct:2,explain:"f&prime;(x)=3x&sup2;, f&prime;(2)=3(4)=12."},
-    {q:"Untuk f(x) = 1/x, berapa f&prime;(1)?",choices:["1","&minus;1","0","2"],correct:1,explain:"f&prime;(x) = &minus;1/x&sup2;, f&prime;(1) = &minus;1."},
+    {q:"Jika \\(f(x) = x^2\\), berapa \\(f'(3)\\) menurut definisi limit?",choices:["6","9","3","0"],correct:0,explain:"\\(f'(x)=2x\\), sehingga \\(f'(3)=6\\)."},
+    {q:"Bentuk hasil bagi selisih \\(\\dfrac{f(c+h)-f(c)}{h}\\) akan mendekati&hellip; saat \\(h \\to 0\\)",choices:["\\(f(c)\\)","\\(f'(c)\\)","\\(c\\)","0 selalu"],correct:1},
+    {q:"Jika \\(f(x) = 5\\) (konstan), berapa \\(f'(c)\\) untuk semua c?",choices:["5","1","0","c"],correct:2},
+    {q:"Untuk \\(f(x) = 2x + 1\\), nilai \\(f'(c)\\) untuk semua c adalah&hellip;",choices:["2","1","\\(2c+1\\)","c"],correct:0},
+    {q:"Bentuk pendekatan \\((x \\to c)\\) dari turunan adalah&hellip;",choices:["\\(\\displaystyle\\lim_{x\\to c} \\dfrac{f(x)-f(c)}{x-c}\\)","\\(\\displaystyle\\lim_{x\\to c} f(x)\\)","\\(f(x)/x\\)","\\(f(c)/c\\)"],correct:0},
+    {q:"Jika \\(f(x)=x^3\\), berapa \\(f'(2)\\)?",choices:["8","6","12","4"],correct:2,explain:"\\(f'(x)=3x^2\\), \\(f'(2)=3(4)=12\\)."},
+    {q:"Untuk \\(f(x) = 1/x\\), berapa \\(f'(1)\\)?",choices:["1","-1","0","2"],correct:1,explain:"\\(f'(x) = -1/x^2\\), \\(f'(1) = -1\\)."},
     {q:"Mengapa kita perlu limit (bukan sekadar substitusi h = 0) dalam definisi turunan?",choices:["Supaya rumusnya lebih pendek","Karena substitusi h=0 langsung membuat penyebut nol (bentuk tak tentu 0/0)","Karena turunan selalu tak hingga","Tidak ada alasan khusus"],correct:1},
-    {q:"Untuk f(x) = &radic;x, berapa f&prime;(4)?",choices:["1/4","4","1/2","2"],correct:0,explain:"f&prime;(x)=1/(2&radic;x), f&prime;(4)=1/4."},
+    {q:"Untuk \\(f(x) = \\sqrt{x}\\), berapa \\(f'(4)\\)?",choices:["1/4","4","1/2","2"],correct:0,explain:"\\(f'(x)=\\dfrac{1}{2\\sqrt{x}}\\), \\(f'(4)=1/4\\)."},
     {q:"Jika hasil bagi selisih untuk h=0,1 dan h=0,001 memberi nilai yang semakin berdekatan, ini menunjukkan&hellip;",choices:["f tidak terdiferensialkan","Limitnya kemungkinan ada (mendekati suatu nilai tunggal)","Fungsi tidak kontinu","c bukan bilangan real"],correct:1}
   ];
   new QuizEngine($('#gameRoot'), qs);
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>

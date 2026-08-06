@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aturan Dasar Diferensiasi</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
@@ -19,14 +31,14 @@
   <div class="panel active" id="panelA">
     
 <h2 class="sect">Penyusun Polinomial</h2>
-<p>Atur koefisien suku a<sub>3</sub>x&sup3; + a<sub>2</sub>x&sup2; + a<sub>1</sub>x + a<sub>0</sub>, lihat f(x) dan f&prime;(x) terbentuk otomatis menggunakan aturan pangkat &amp; linearitas.</p>
-<div class="controls"><label>a<sub>3</sub> (koef. x&sup3;): <span id="a3v"></span></label><input type="range" id="a3" min="-5" max="5" step="1" value="1"></div>
-<div class="controls"><label>a<sub>2</sub> (koef. x&sup2;): <span id="a2v"></span></label><input type="range" id="a2" min="-5" max="5" step="1" value="0"></div>
-<div class="controls"><label>a<sub>1</sub> (koef. x): <span id="a1"></span></label><input type="range" id="a1s" min="-5" max="5" step="1" value="-3"></div>
-<div class="controls"><label>a<sub>0</sub> (konstanta): <span id="a0v"></span></label><input type="range" id="a0" min="-5" max="5" step="1" value="0"></div>
+<p>Atur koefisien suku \(a_3x^3 + a_2x^2 + a_1x + a_0\), lihat \(f(x)\) dan \(f'(x)\) terbentuk otomatis menggunakan aturan pangkat &amp; linearitas.</p>
+<div class="controls"><label>\(a_3\) (koef. \(x^3\)): <span id="a3v"></span></label><input type="range" id="a3" min="-5" max="5" step="1" value="1"></div>
+<div class="controls"><label>\(a_2\) (koef. \(x^2\)): <span id="a2v"></span></label><input type="range" id="a2" min="-5" max="5" step="1" value="0"></div>
+<div class="controls"><label>\(a_1\) (koef. x): <span id="a1"></span></label><input type="range" id="a1s" min="-5" max="5" step="1" value="-3"></div>
+<div class="controls"><label>\(a_0\) (konstanta): <span id="a0v"></span></label><input type="range" id="a0" min="-5" max="5" step="1" value="0"></div>
 <canvas id="c10"></canvas>
-<div class="readout"><div class="chip" style="flex:2">f(x)<b id="fexpr"></b></div></div>
-<div class="readout"><div class="chip" style="flex:2">f '(x)<b id="fpexpr"></b></div></div>
+<div class="readout"><div class="chip" style="flex:2">\(f(x)\)<b id="fexpr"></b></div></div>
+<div class="readout"><div class="chip" style="flex:2">\(f'(x)\)<b id="fpexpr"></b></div></div>
 
   </div>
   <div class="panel" id="panelB">
@@ -94,6 +106,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -167,6 +184,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -186,6 +204,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -194,6 +213,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -224,6 +244,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -250,7 +271,7 @@ initTabs();
   const ids=['a3','a2','a1s','a0'];
   const labs=['a3v','a2v','a1','a0v'];
   const g=new Grapher($('#c10'),{xmin:-3,xmax:3,ymin:-10,ymax:10});
-  function term(c,p){ if(c===0) return ""; const sign=c>0?" + ":" &minus; "; const ac=Math.abs(c); const coef=(ac===1&&p>0)?"":ac; const varp = p===0?"":( p===1?"x":("x<sup>"+p+"</sup>")); return sign+coef+varp; }
+  function term(c,p){ if(c===0) return ""; const sign=c>0?" + ":" - "; const ac=Math.abs(c); const coef=(ac===1&&p>0)?"":ac; const varp = p===0?"":( p===1?"x":("x^{"+p+"}")); return sign+coef+varp; }
   function update(){
     const a3=parseInt($('#a3').value), a2=parseInt($('#a2').value), a1=parseInt($('#a1s').value), a0=parseInt($('#a0').value);
     ids.forEach((id,i)=>{ /*noop*/ });
@@ -258,13 +279,14 @@ initTabs();
     const f = x=> a3*Math.pow(x,3)+a2*x*x+a1*x+a0;
     const fp = x=> 3*a3*x*x+2*a2*x+a1;
     let fe = term(a3,3)+term(a2,2)+term(a1,1)+term(a0,0);
-    fe = fe.replace(/^ \+ /,"").replace(/^ &minus; /,"&minus;");
+    fe = fe.replace(/^ \+ /,"").replace(/^ - /,"-");
     if(fe==="") fe="0";
     let fpe = term(3*a3,2)+term(2*a2,1)+term(a1,0);
-    fpe = fpe.replace(/^ \+ /,"").replace(/^ &minus; /,"&minus;");
+    fpe = fpe.replace(/^ \+ /,"").replace(/^ - /,"-");
     if(fpe==="") fpe="0";
-    $('#fexpr').innerHTML="f(x) = "+fe;
-    $('#fpexpr').innerHTML="f '(x) = "+fpe;
+    $('#fexpr').innerHTML="\\(f(x) = "+fe+"\\)";
+    $('#fpexpr').innerHTML="\\(f'(x) = "+fpe+"\\)";
+    typesetMath(document.body);
     g.clear(); g.axes(); g.curve(f,'#1a3a5c',2.4); g.curve(fp,'#b5321a',2,[5,3]);
   }
   ['a3','a2','a1s','a0'].forEach(id=>$('#'+id).addEventListener('input',update));
@@ -274,20 +296,21 @@ initTabs();
 
 (function(){
   const qs=[
-    {q:"D<sub>x</sub>[x&#8309;] = &hellip;",choices:["7x&#8310;","8x&#8309;","7x&#8310; benar? Ya","x&#8310;"],correct:0,explain:"Turunan x&#8309; adalah 7x&#8310; (7 dan 8 tampil karena superskrip HTML, jawabannya 7x pangkat 6)."},
-    {q:"D<sub>x</sub>[5] = &hellip;",choices:["5","1","0","x"],correct:2},
-    {q:"D<sub>x</sub>[4x&sup3;] = &hellip;",choices:["12x&sup2;","4x&sup2;","12x&sup3;","x&sup2;"],correct:0},
-    {q:"D<sub>x</sub>[x&sup2; + 3x] = &hellip;",choices:["2x + 3","x + 3","2x","2x + 3x"],correct:0},
-    {q:"D<sub>x</sub>[&radic;x] (nyatakan sebagai x&#189;) = &hellip;",choices:["1/(2&radic;x)","&radic;x/2","2&radic;x","1/&radic;x"],correct:0},
-    {q:"D<sub>x</sub>[1/x&sup2;] (nyatakan sebagai x&#8315;&sup2;) = &hellip;",choices:["&minus;2x&#8315;&sup3;","2x&#8315;&sup3;","&minus;2/x","1/x&sup3;"],correct:0},
-    {q:"Jika f(x)=x&#8308;&minus;2x&sup2;, maka f '(x) = &hellip;",choices:["4x&sup3;&minus;4x","4x&sup3;&minus;2x","x&sup3;&minus;4x","4x&#8308;&minus;4x"],correct:0},
-    {q:"Aturan Kelipatan Konstanta menyatakan D<sub>x</sub>[k&middot;f(x)] = &hellip;",choices:["k &middot; f '(x)","f '(x)","k + f '(x)","k&sup2; f '(x)"],correct:0},
-    {q:"D<sub>x</sub>[2x&sup3;&minus;x+9] = &hellip;",choices:["6x&sup2;&minus;1","6x&sup2;&minus;1+9","6x&sup2;","2x&sup2;&minus;1"],correct:0},
-    {q:"Titik pada kurva y=x&sup2;&minus;4x memiliki garis singgung mendatar ketika&hellip;",choices:["x=2","x=0","x=4","x=&minus;2"],correct:0,explain:"y'=2x&minus;4=0 &rArr; x=2."}
+    {q:"\\(D_x[x^7] = \\) &hellip;",choices:["\\(7x^6\\)","\\(8x^7\\)","\\(7x^7\\)","\\(x^6\\)"],correct:0,explain:"Turunan \\(x^7\\) adalah \\(7x^6\\)."},
+    {q:"\\(D_x[5] = \\) &hellip;",choices:["5","1","0","x"],correct:2},
+    {q:"\\(D_x[4x^3] = \\) &hellip;",choices:["\\(12x^2\\)","\\(4x^2\\)","\\(12x^3\\)","\\(x^2\\)"],correct:0},
+    {q:"\\(D_x[x^2 + 3x] = \\) &hellip;",choices:["\\(2x + 3\\)","\\(x + 3\\)","\\(2x\\)","\\(2x + 3x\\)"],correct:0},
+    {q:"\\(D_x[\\sqrt{x}]\\) (nyatakan sebagai \\(x^{1/2}\\)) = &hellip;",choices:["\\(1/(2\\sqrt{x})\\)","\\(\\sqrt{x}/2\\)","\\(2\\sqrt{x}\\)","\\(1/\\sqrt{x}\\)"],correct:0},
+    {q:"\\(D_x[1/x^2]\\) (nyatakan sebagai \\(x^{-2}\\)) = &hellip;",choices:["\\(-2x^{-3}\\)","\\(2x^{-3}\\)","\\(-2/x\\)","\\(1/x^3\\)"],correct:0},
+    {q:"Jika \\(f(x)=x^4-2x^2\\), maka \\(f'(x) = \\) &hellip;",choices:["\\(4x^3-4x\\)","\\(4x^3-2x\\)","\\(x^3-4x\\)","\\(4x^4-4x\\)"],correct:0},
+    {q:"Aturan Kelipatan Konstanta menyatakan \\(D_x[k\\cdot f(x)] = \\) &hellip;",choices:["\\(k \\cdot f'(x)\\)","\\(f'(x)\\)","\\(k + f'(x)\\)","\\(k^2 f'(x)\\)"],correct:0},
+    {q:"\\(D_x[2x^3-x+9] = \\) &hellip;",choices:["\\(6x^2-1\\)","\\(6x^2-1+9\\)","\\(6x^2\\)","\\(2x^2-1\\)"],correct:0},
+    {q:"Titik pada kurva \\(y=x^2-4x\\) memiliki garis singgung mendatar ketika&hellip;",choices:["\\(x=2\\)","\\(x=0\\)","\\(x=4\\)","\\(x=-2\\)"],correct:0,explain:"\\(y'=2x-4=0 \\Rightarrow x=2\\)."}
   ];
   new QuizEngine($('#gameRoot'), qs);
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>

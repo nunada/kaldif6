@@ -4,12 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Turunan Fungsi Eksponensial dan Logaritma</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
   <a class="backlink" href="index.html">&larr; Daftar Aktivitas</a>
   <h1>6.7.2 &mdash; Turunan Fungsi Eksponensial dan Logaritma</h1>
-  <p>Menjelajahi basis a<sup>x</sup> dan turunannya</p>
+  <p>Menjelajahi basis aˣ dan turunannya</p>
 </header>
 <div class="wrap">
   <div class="tabs">
@@ -19,7 +31,7 @@
   <div class="panel active" id="panelA">
     
 <h2 class="sect">Basis Berapa yang Istimewa?</h2>
-<p>Geser basis a. Kurva biru adalah f(x)=a<sup>x</sup>, kurva merah putus-putus adalah turunannya f'(x)=a<sup>x</sup> ln a. Cari basis di mana kedua kurva <b>berhimpit sempurna</b>!</p>
+<p>Geser basis a. Kurva biru adalah \(f(x)=a^x\), kurva merah putus-putus adalah turunannya \(f'(x)=a^x \ln a\). Cari basis di mana kedua kurva <b>berhimpit sempurna</b>!</p>
 <canvas id="c13"></canvas>
 <div class="controls"><label>Basis a = <span id="aVal13"></span></label><input type="range" id="aSlider13" min="0.3" max="4" step="0.02" value="2"></div>
 <div class="readout"><div class="chip">ln(a)<b id="lnaOut"></b></div></div>
@@ -91,6 +103,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -164,6 +181,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -183,6 +201,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -191,6 +210,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -221,6 +241,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -260,20 +281,21 @@ initTabs();
 
 (function(){
   const qs=[
-    {q:"D<sub>x</sub>[e<sup>x</sup>] = &hellip;",choices:["e<sup>x</sup>","xe<sup>x&minus;1</sup>","1","e"],correct:0},
-    {q:"D<sub>x</sub>[ln x] = &hellip;",choices:["1/x","ln x","x","1"],correct:0},
-    {q:"D<sub>x</sub>[a<sup>x</sup>] = &hellip;",choices:["a<sup>x</sup>","a<sup>x</sup> ln a","x a<sup>x&minus;1</sup>","ln a"],correct:1},
-    {q:"D<sub>x</sub>[log<sub>a</sub> x] = &hellip;",choices:["1/x","1/(x ln a)","ln a / x","1/ln a"],correct:1},
+    {q:"\\(D_x[e^x] = \\) &hellip;",choices:["\\(e^x\\)","\\(xe^{x-1}\\)","1","e"],correct:0},
+    {q:"\\(D_x[\\ln x] = \\) &hellip;",choices:["\\(1/x\\)","\\(\\ln x\\)","x","1"],correct:0},
+    {q:"\\(D_x[a^x] = \\) &hellip;",choices:["\\(a^x\\)","\\(a^x \\ln a\\)","\\(xa^{x-1}\\)","\\(\\ln a\\)"],correct:1},
+    {q:"\\(D_x[\\log_a x] = \\) &hellip;",choices:["\\(1/x\\)","\\(1/(x\\ln a)\\)","\\(\\ln a / x\\)","\\(1/\\ln a\\)"],correct:1},
     {q:"Nilai basis e sekitar&hellip;",choices:["2,718","3,141","1,414","1,618"],correct:0},
-    {q:"Mengapa f(x)=e<sup>x</sup> istimewa di antara semua fungsi eksponensial?",choices:["Karena turunannya nol","Karena turunannya sama persis dengan fungsinya sendiri","Karena grafiknya garis lurus","Karena tidak punya turunan"],correct:1},
-    {q:"D<sub>x</sub>[3e<sup>x</sup>+2x] = &hellip;",choices:["3e<sup>x</sup>+2","3e<sup>x</sup>","e<sup>x</sup>+2","3xe<sup>x&minus;1</sup>+2"],correct:0},
-    {q:"D<sub>x</sub>[ln x + x&sup2;] = &hellip;",choices:["1/x + 2x","1/x + x","ln x + 2x","x + 2x"],correct:0},
-    {q:"Untuk a antara 0 dan 1, kurva a<sup>x</sup>&hellip;",choices:["Naik","Turun","Konstan","Tidak terdefinisi"],correct:1},
-    {q:"D<sub>x</sub>[ln x] hanya berlaku untuk&hellip;",choices:["Semua x real","x &gt; 0","x &lt; 0","x = 0"],correct:1}
+    {q:"Mengapa \\(f(x)=e^x\\) istimewa di antara semua fungsi eksponensial?",choices:["Karena turunannya nol","Karena turunannya sama persis dengan fungsinya sendiri","Karena grafiknya garis lurus","Karena tidak punya turunan"],correct:1},
+    {q:"\\(D_x[3e^x+2x] = \\) &hellip;",choices:["\\(3e^x+2\\)","\\(3e^x\\)","\\(e^x+2\\)","\\(3xe^{x-1}+2\\)"],correct:0},
+    {q:"\\(D_x[\\ln x + x^2] = \\) &hellip;",choices:["\\(1/x + 2x\\)","\\(1/x + x\\)","\\(\\ln x + 2x\\)","\\(x + 2x\\)"],correct:0},
+    {q:"Untuk a antara 0 dan 1, kurva \\(a^x\\)&hellip;",choices:["Naik","Turun","Konstan","Tidak terdefinisi"],correct:1},
+    {q:"\\(D_x[\\ln x]\\) hanya berlaku untuk&hellip;",choices:["Semua x real","\\(x \\gt 0\\)","\\(x \\lt 0\\)","\\(x = 0\\)"],correct:1}
   ];
   new QuizEngine($('#gameRoot'), qs);
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>

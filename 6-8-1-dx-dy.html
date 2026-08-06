@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diferensial dx dan dy</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
@@ -18,14 +30,14 @@
   </div>
   <div class="panel active" id="panelA">
     
-<h2 class="sect">Visualisasi dx, dy, dan &Delta;y</h2>
-<p>Geser dx untuk melihat bagaimana dy (perubahan garis singgung) menghampiri &Delta;y (perubahan kurva sebenarnya) pada f(x)=0,25x&sup2;+0,5x+2.</p>
+<h2 class="sect">Visualisasi \(dx\), \(dy\), dan \(\Delta y\)</h2>
+<p>Geser dx untuk melihat bagaimana \(dy\) (perubahan garis singgung) menghampiri \(\Delta y\) (perubahan kurva sebenarnya) pada \(f(x)=0{,}25x^2+0{,}5x+2\).</p>
 <canvas id="c15"></canvas>
 <div class="controls"><label>x = <span id="x15"></span></label><input type="range" id="xSlider15" min="-0.5" max="3" step="0.05" value="1.6"></div>
 <div class="controls"><label>dx = <span id="dx15"></span></label><input type="range" id="dxSlider15" min="0.1" max="2.5" step="0.05" value="1.5"></div>
 <div class="readout">
-<div class="chip">dy (hampiran)<b id="dyOut15"></b></div>
-<div class="chip">&Delta;y (sebenarnya)<b id="deltaOut15"></b></div>
+<div class="chip">\(dy\) (hampiran)<b id="dyOut15"></b></div>
+<div class="chip">\(\Delta y\) (sebenarnya)<b id="deltaOut15"></b></div>
 <div class="chip">Selisih<b id="errOut15"></b></div>
 </div>
 
@@ -95,6 +107,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -168,6 +185,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -187,6 +205,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -195,6 +214,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -225,6 +245,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -287,10 +308,11 @@ initTabs();
     }
     const cur=rounds[r];
     root.innerHTML='<div class="quiz-top"><span>Ronde '+(r+1)+' / '+rounds.length+'</span><span>Skor: '+score+'</span></div>'+
-      '<p>Fungsi f(x), x = '+cur.x0+', dx = '+cur.dx+'. Tebak nilai dy = f&prime;(x)&middot;dx:</p>'+
+      '<p>Fungsi f(x), x = '+cur.x0+', dx = '+cur.dx+". Tebak nilai \\(dy = f'(x)\\cdot dx\\):</p>"+
       '<input type="number" step="0.01" id="dyGuess" style="font-size:1.1rem;padding:10px;width:100%;border-radius:8px;border:1px solid #bbb;">'+
       '<div class="btnrow"><button class="act" id="dySubmit">Kirim Tebakan</button></div>'+
       '<div class="quiz-feedback" id="dyFb"></div>';
+    typesetMath(root);
     $('#dySubmit').onclick=()=>{
       const guess=parseFloat($('#dyGuess').value); if(isNaN(guess)) return;
       const actual=cur.fp(cur.x0)*cur.dx;
@@ -305,6 +327,7 @@ initTabs();
   render();
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>

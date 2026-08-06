@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diferensiabel &rArr; Kontinu</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
@@ -93,6 +105,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -166,6 +183,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -185,6 +203,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -193,6 +212,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -223,6 +243,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -247,16 +268,16 @@ initTabs();
 
 (function(){
   const steps=[
-    "Tujuan: tunjukkan bahwa jika f'(c) ada, maka f kontinu di c, yaitu lim<sub>x&rarr;c</sub> f(x) = f(c).",
-    "Untuk x &ne; c, tulis identitas aljabar: f(x) &minus; f(c) = [ (f(x)&minus;f(c)) / (x&minus;c) ] &middot; (x&minus;c). Ini valid karena kita hanya mengalikan dan membagi dengan (x&minus;c) yang tidak nol.",
-    "Ambil limit kedua ruas saat x&rarr;c. Ruas kanan adalah hasil kali dua limit: lim [f(x)&minus;f(c)]/(x&minus;c) dikali lim (x&minus;c).",
-    "Limit pertama, menurut definisi, sama dengan f'(c) (ada, karena f terdiferensialkan di c). Limit kedua, lim(x&minus;c), jelas sama dengan 0.",
-    "Jadi lim [f(x) &minus; f(c)] = f'(c) &middot; 0 = 0, sehingga lim f(x) = f(c). Ini persis definisi kekontinuan f di c. &#9632;",
+    "Tujuan: tunjukkan bahwa jika \\(f'(c)\\) ada, maka f kontinu di c, yaitu \\(\\displaystyle\\lim_{x\\to c} f(x) = f(c)\\).",
+    "Untuk \\(x \\neq c\\), tulis identitas aljabar: \\(\\displaystyle f(x) - f(c) = \\left[\\frac{f(x)-f(c)}{x-c}\\right] \\cdot (x-c)\\). Ini valid karena kita hanya mengalikan dan membagi dengan \\((x-c)\\) yang tidak nol.",
+    "Ambil limit kedua ruas saat \\(x\\to c\\). Ruas kanan adalah hasil kali dua limit: \\(\\displaystyle\\lim_{x\\to c}\\frac{f(x)-f(c)}{x-c}\\) dikali \\(\\displaystyle\\lim_{x\\to c}(x-c)\\).",
+    "Limit pertama, menurut definisi, sama dengan \\(f'(c)\\) (ada, karena f terdiferensialkan di c). Limit kedua, \\(\\displaystyle\\lim_{x\\to c}(x-c)\\), jelas sama dengan 0.",
+    "Jadi \\(\\displaystyle\\lim_{x\\to c}[f(x) - f(c)] = f'(c) \\cdot 0 = 0\\), sehingga \\(\\displaystyle\\lim_{x\\to c} f(x) = f(c)\\). Ini persis definisi kekontinuan f di c. &#9632;",
     "Kesimpulan penting: KONTRAPOSISI teorema ini sangat berguna — jika f TIDAK kontinu di c, maka f PASTI TIDAK terdiferensialkan di c, tanpa perlu menghitung limit hasil bagi selisih sama sekali!"
   ];
   let i=0;
   const box=$('#proofBox'), stepOut=$('#stepOut');
-  function render(){ box.innerHTML="<b>Langkah "+(i+1)+" dari "+steps.length+":</b><br>"+steps[i]; stepOut.textContent=(i+1)+"/"+steps.length; }
+  function render(){ box.innerHTML="<b>Langkah "+(i+1)+" dari "+steps.length+":</b><br>"+steps[i]; stepOut.textContent=(i+1)+"/"+steps.length; typesetMath(box); }
   $('#nextBtn').onclick=()=>{ if(i<steps.length-1) i++; render(); };
   $('#prevBtn').onclick=()=>{ if(i>0) i--; render(); };
   render();
@@ -265,20 +286,21 @@ initTabs();
 
 (function(){
   const qs=[
-    {q:"f(x) = |x| di x = 0 bersifat&hellip;",choices:["Tidak kontinu","Kontinu tetapi tidak terdiferensialkan","Terdiferensialkan","Tidak terdefinisi"],correct:1},
-    {q:"f(x) = x&sup2; di x = 0 bersifat&hellip;",choices:["Kontinu dan terdiferensialkan","Kontinu tapi tidak terdiferensialkan","Tidak kontinu","Tidak terdefinisi"],correct:0},
+    {q:"\\(f(x) = |x|\\) di \\(x = 0\\) bersifat&hellip;",choices:["Tidak kontinu","Kontinu tetapi tidak terdiferensialkan","Terdiferensialkan","Tidak terdefinisi"],correct:1},
+    {q:"\\(f(x) = x^2\\) di \\(x = 0\\) bersifat&hellip;",choices:["Kontinu dan terdiferensialkan","Kontinu tapi tidak terdiferensialkan","Tidak kontinu","Tidak terdefinisi"],correct:0},
     {q:"Jika f terdiferensialkan di c, maka pasti&hellip;",choices:["f kontinu di c","f tidak kontinu di c","f konstan","f naik di c"],correct:0},
-    {q:"Jika f kontinu di c, apakah f pasti terdiferensialkan di c?",choices:["Ya, selalu","Tidak selalu (misalnya f(x)=|x| di 0)","Ya, jika f polinomial saja","Tidak pernah"],correct:1},
+    {q:"Jika f kontinu di c, apakah f pasti terdiferensialkan di c?",choices:["Ya, selalu","Tidak selalu (misalnya \\(f(x)=|x|\\) di 0)","Ya, jika f polinomial saja","Tidak pernah"],correct:1},
     {q:"Fungsi tangga (loncat nilai) di titik loncatannya bersifat&hellip;",choices:["Kontinu dan terdiferensialkan","Kontinu tapi tidak terdiferensialkan","Tidak kontinu, sehingga otomatis tidak terdiferensialkan","Terdiferensialkan meski tidak kontinu"],correct:2},
     {q:"Kontraposisi dari 'f terdiferensialkan di c &rArr; f kontinu di c' adalah&hellip;",choices:["f kontinu di c &rArr; f terdiferensialkan di c","f tidak kontinu di c &rArr; f tidak terdiferensialkan di c","f tidak terdiferensialkan di c &rArr; f tidak kontinu di c","Tidak ada kontraposisi yang valid"],correct:1},
-    {q:"Manakah bukti kunci dalam Teorema 6.2?",choices:["Menuliskan f(x)&minus;f(c) sebagai hasil kali hasil bagi selisih dan (x&minus;c)","Menggunakan Teorema Binomial","Mengganti x dengan h","Menggunakan aturan rantai"],correct:0},
-    {q:"f(x) = x&sup2;&frasl;&sup3; (x pangkat 2/3) di x=0 bersifat&hellip;",choices:["Kontinu dan terdiferensialkan","Kontinu tapi tidak terdiferensialkan (cusp)","Tidak kontinu","Tidak terdefinisi di 0"],correct:1},
+    {q:"Manakah bukti kunci dalam Teorema 6.2?",choices:["Menuliskan \\(f(x)-f(c)\\) sebagai hasil kali hasil bagi selisih dan \\((x-c)\\)","Menggunakan Teorema Binomial","Mengganti x dengan h","Menggunakan aturan rantai"],correct:0},
+    {q:"\\(f(x) = x^{2/3}\\) di \\(x=0\\) bersifat&hellip;",choices:["Kontinu dan terdiferensialkan","Kontinu tapi tidak terdiferensialkan (cusp)","Tidak kontinu","Tidak terdefinisi di 0"],correct:1},
     {q:"Manfaat utama kontraposisi Teorema 6.2 adalah&hellip;",choices:["Bisa langsung menyimpulkan ketidakterdiferensialan dari ketidakkontinuan tanpa hitung limit","Membuktikan semua fungsi terdiferensialkan","Mengganti definisi turunan","Tidak ada manfaat praktis"],correct:0},
-    {q:"f(x) = x sin(1/x) untuk x&ne;0, f(0)=0 di titik x=0 bersifat&hellip;",choices:["Tidak kontinu","Kontinu tapi tidak terdiferensialkan","Terdiferensialkan dengan f'(0)=0","Tidak terdefinisi"],correct:1}
+    {q:"\\(f(x) = x\\sin(1/x)\\) untuk \\(x\\neq 0\\), \\(f(0)=0\\) di titik \\(x=0\\) bersifat&hellip;",choices:["Tidak kontinu","Kontinu tapi tidak terdiferensialkan","Terdiferensialkan dengan \\(f'(0)=0\\)","Tidak terdefinisi"],correct:1}
   ];
   new QuizEngine($('#gameRoot'), qs);
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>

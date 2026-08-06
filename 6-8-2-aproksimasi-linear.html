@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aproksimasi Linear Lokal</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
@@ -19,11 +31,11 @@
   <div class="panel active" id="panelA">
     
 <h2 class="sect">Kalkulator Hampiran Linear</h2>
-<p>Pilih fungsi dan titik dasar x, geser &Delta;x, lalu bandingkan nilai sebenarnya f(x+&Delta;x) dengan hampiran linear f(x)+f'(x)&Delta;x.</p>
+<p>Pilih fungsi dan titik dasar x, geser \(\Delta x\), lalu bandingkan nilai sebenarnya \(f(x+\Delta x)\) dengan hampiran linear \(f(x)+f'(x)\Delta x\).</p>
 <div class="controls"><label>Fungsi</label>
-<select id="apSel"><option value="0">f(x) = &radic;x, x = 25</option><option value="1">f(x) = 1/x, x = 4</option><option value="2">f(x) = x&sup3;, x = 2</option></select></div>
+<select id="apSel"><option value="0">f(x) = √x, x = 25</option><option value="1">f(x) = 1/x, x = 4</option><option value="2">f(x) = x³, x = 2</option></select></div>
 <canvas id="c16"></canvas>
-<div class="controls"><label>&Delta;x = <span id="dx16"></span></label><input type="range" id="dxSlider16" min="-3" max="3" step="0.1" value="1"></div>
+<div class="controls"><label>\(\Delta x\) = <span id="dx16"></span></label><input type="range" id="dxSlider16" min="-3" max="3" step="0.1" value="1"></div>
 <div class="readout">
 <div class="chip">Nilai sebenarnya<b id="actualOut16"></b></div>
 <div class="chip">Hampiran linear<b id="approxOut16"></b></div>
@@ -96,6 +108,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -169,6 +186,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -188,6 +206,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -196,6 +215,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -226,6 +246,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -274,20 +295,21 @@ initTabs();
 
 (function(){
   const qs=[
-    {q:"Rumus hampiran linear adalah&hellip;",choices:["f(x+&Delta;x) &approx; f(x) + f '(x)&Delta;x","f(x+&Delta;x) = f(x)&middot;&Delta;x","f(x+&Delta;x) &approx; f '(x)","f(x+&Delta;x) &approx; &Delta;x"],correct:0},
-    {q:"Hampiran linear paling akurat ketika&hellip;",choices:["&Delta;x sangat besar","&Delta;x mendekati 0 (kecil)","f'(x) = 0","x = 0"],correct:1},
-    {q:"&radic;26 dihampiri menggunakan f(x)=&radic;x di titik dasar&hellip;",choices:["x = 26","x = 25","x = 5","x = 1"],correct:1},
-    {q:"Galat hampiran linear didefinisikan sebagai&hellip;",choices:["|nilai sebenarnya &minus; nilai hampiran|","f(x)","f '(x)","&Delta;x"],correct:0},
+    {q:"Rumus hampiran linear adalah&hellip;",choices:["\\(f(x+\\Delta x) \\approx f(x) + f'(x)\\Delta x\\)","\\(f(x+\\Delta x) = f(x)\\cdot\\Delta x\\)","\\(f(x+\\Delta x) \\approx f'(x)\\)","\\(f(x+\\Delta x) \\approx \\Delta x\\)"],correct:0},
+    {q:"Hampiran linear paling akurat ketika&hellip;",choices:["\\(\\Delta x\\) sangat besar","\\(\\Delta x\\) mendekati 0 (kecil)","\\(f'(x) = 0\\)","\\(x = 0\\)"],correct:1},
+    {q:"\\(\\sqrt{26}\\) dihampiri menggunakan \\(f(x)=\\sqrt{x}\\) di titik dasar&hellip;",choices:["x = 26","x = 25","x = 5","x = 1"],correct:1},
+    {q:"Galat hampiran linear didefinisikan sebagai&hellip;",choices:["|nilai sebenarnya - nilai hampiran|","\\(f(x)\\)","\\(f'(x)\\)","\\(\\Delta x\\)"],correct:0},
     {q:"Hampiran linear pada dasarnya menggunakan&hellip;",choices:["Garis singgung sebagai pengganti kurva di sekitar titik","Garis sekan sebagai pengganti kurva","Kurva itu sendiri","Sumbu-x"],correct:0},
-    {q:"Untuk f(x)=x&sup3; di x=2 dengan &Delta;x=0,1, hampiran dy = &hellip;",choices:["f '(2)&middot;0,1 = 12&middot;0,1 = 1,2","f(2)&middot;0,1","0,1","f '(2) = 12"],correct:0},
-    {q:"Semakin jauh &Delta;x dari 0, galat hampiran linear cenderung&hellip;",choices:["Semakin kecil","Semakin besar","Selalu nol","Tidak berubah"],correct:1},
+    {q:"Untuk \\(f(x)=x^3\\) di \\(x=2\\) dengan \\(\\Delta x=0{,}1\\), hampiran dy = &hellip;",choices:["\\(f'(2)\\cdot0{,}1 = 12\\cdot0{,}1 = 1{,}2\\)","\\(f(2)\\cdot0{,}1\\)","0,1","\\(f'(2) = 12\\)"],correct:0},
+    {q:"Semakin jauh \\(\\Delta x\\) dari 0, galat hampiran linear cenderung&hellip;",choices:["Semakin kecil","Semakin besar","Selalu nol","Tidak berubah"],correct:1},
     {q:"Estimasi galat pengukuran (misalnya volume kubus) menggunakan&hellip;",choices:["Diferensial","Integral","Deret Taylor","Logaritma"],correct:0},
-    {q:"Jika f'(x0) = 0, maka hampiran linear di sekitar x0 memprediksi&hellip;",choices:["Perubahan besar untuk &Delta;x kecil","Hampir tidak ada perubahan (dy &approx; 0)","f(x0)=0","Fungsi tidak terdefinisi"],correct:1},
+    {q:"Jika \\(f'(x_0) = 0\\), maka hampiran linear di sekitar \\(x_0\\) memprediksi&hellip;",choices:["Perubahan besar untuk \\(\\Delta x\\) kecil","Hampir tidak ada perubahan (\\(dy \\approx 0\\))","\\(f(x_0)=0\\)","Fungsi tidak terdefinisi"],correct:1},
     {q:"Hampiran linear termasuk aplikasi penting dari konsep&hellip;",choices:["Diferensial dan garis singgung","Integral tentu","Deret geometri","Fungsi invers"],correct:0}
   ];
   new QuizEngine($('#gameRoot'), qs);
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>

@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ragam Notasi Derivatif</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
@@ -22,11 +34,11 @@
 <p>Pilih sebuah fungsi. Alat ini menampilkan turunan pertamanya sekaligus dalam tiga notasi.</p>
 <div class="controls"><label>Fungsi</label>
 <select id="notSel">
-<option value="0">y = x&sup2;</option>
-<option value="1">y = x&sup3; &minus; 2x</option>
-<option value="2">y = 5x&sup4; &minus; x&sup2; + 7</option>
+<option value="0">y = x²</option>
+<option value="1">y = x³ − 2x</option>
+<option value="2">y = 5x⁴ − x² + 7</option>
 <option value="3">y = 1/x</option>
-<option value="4">y = &radic;x</option>
+<option value="4">y = √x</option>
 </select></div>
 <div class="readout">
 <div class="chip">Notasi aksen<b id="notA"></b></div>
@@ -101,6 +113,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -174,6 +191,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -193,6 +211,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -201,6 +220,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -231,6 +251,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -255,30 +276,31 @@ initTabs();
 
 (function(){
   const items=[
-    {a:"f '(x) = 2x", b:"dy/dx = 2x", c:"D<sub>x</sub>[y] = 2x"},
-    {a:"f '(x) = 3x&sup2; &minus; 2", b:"dy/dx = 3x&sup2; &minus; 2", c:"D<sub>x</sub>[y] = 3x&sup2; &minus; 2"},
-    {a:"f '(x) = 20x&sup3; &minus; 2x", b:"dy/dx = 20x&sup3; &minus; 2x", c:"D<sub>x</sub>[y] = 20x&sup3; &minus; 2x"},
-    {a:"f '(x) = &minus;1/x&sup2;", b:"dy/dx = &minus;1/x&sup2;", c:"D<sub>x</sub>[y] = &minus;1/x&sup2;"},
-    {a:"f '(x) = 1/(2&radic;x)", b:"dy/dx = 1/(2&radic;x)", c:"D<sub>x</sub>[y] = 1/(2&radic;x)"}
+    {a:"\\(f'(x) = 2x\\)", b:"\\(\\dfrac{dy}{dx} = 2x\\)", c:"\\(D_x[y] = 2x\\)"},
+    {a:"\\(f'(x) = 3x^2 - 2\\)", b:"\\(\\dfrac{dy}{dx} = 3x^2 - 2\\)", c:"\\(D_x[y] = 3x^2 - 2\\)"},
+    {a:"\\(f'(x) = 20x^3 - 2x\\)", b:"\\(\\dfrac{dy}{dx} = 20x^3 - 2x\\)", c:"\\(D_x[y] = 20x^3 - 2x\\)"},
+    {a:"\\(f'(x) = -1/x^2\\)", b:"\\(\\dfrac{dy}{dx} = -1/x^2\\)", c:"\\(D_x[y] = -1/x^2\\)"},
+    {a:"\\(f'(x) = \\dfrac{1}{2\\sqrt{x}}\\)", b:"\\(\\dfrac{dy}{dx} = \\dfrac{1}{2\\sqrt{x}}\\)", c:"\\(D_x[y] = \\dfrac{1}{2\\sqrt{x}}\\)"}
   ];
   const sel=$('#notSel');
-  function update(){ const it=items[parseInt(sel.value)]; $('#notA').innerHTML=it.a; $('#notB').innerHTML=it.b; $('#notC').innerHTML=it.c; }
+  function update(){ const it=items[parseInt(sel.value)]; $('#notA').innerHTML=it.a; $('#notB').innerHTML=it.b; $('#notC').innerHTML=it.c; typesetMath(document.body); }
   sel.addEventListener('change',update); update();
 })();
 
 
 (function(){
   const pairs=[
-    ["f '(x)","dy/dx"],
-    ["f ''(x)","d&sup2;y/dx&sup2;"],
-    ["D<sub>x</sub>[y]","y '"],
-    ["D<sub>x</sub>&sup2;[y]","y ''"],
-    ["d/dx[f(x)]","D<sub>x</sub> f(x)"],
-    ["D<sub>x</sub>&sup3;[y]","d&sup3;y/dx&sup3;"]
+    ["\\(f'(x)\\)","\\(dy/dx\\)"],
+    ["\\(f''(x)\\)","\\(d^2y/dx^2\\)"],
+    ["\\(D_x[y]\\)","\\(y'\\)"],
+    ["\\(D_x^2[y]\\)","\\(y''\\)"],
+    ["\\(d/dx[f(x)]\\)","\\(D_x f(x)\\)"],
+    ["\\(D_x^3[y]\\)","\\(d^3y/dx^3\\)"]
   ];
   new MatchEngine($('#gameRoot'), pairs);
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>

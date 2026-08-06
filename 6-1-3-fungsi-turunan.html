@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Turunan Secara Umum</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
@@ -18,14 +30,14 @@
   </div>
   <div class="panel active" id="panelA">
     
-<h2 class="sect">f(x) dan f&prime;(x) Berdampingan</h2>
-<p>Geser titik x pada kurva f(x) = (1/3)x&sup3; &minus; x. Panel bawah menunjukkan grafik f&prime;(x) = x&sup2; &minus; 1 dengan titik yang bergerak sesuai posisi x &mdash; perhatikan saat garis singgung mendatar (kemiringan 0), titik pada grafik f&prime; berada tepat di sumbu-x.</p>
+<h2 class="sect">\(f(x)\) dan \(f'(x)\) Berdampingan</h2>
+<p>Geser titik x pada kurva \(f(x) = rac{1}{3}x^3 - x\). Panel bawah menunjukkan grafik \(f'(x) = x^2 - 1\) dengan titik yang bergerak sesuai posisi x &mdash; perhatikan saat garis singgung mendatar (kemiringan 0), titik pada grafik \(f'\) berada tepat di sumbu-x.</p>
 <canvas id="c3a"></canvas>
 <div class="controls"><label>x = <span id="xVal3"></span></label><input type="range" id="xSlider3" min="-2.2" max="2.2" step="0.02" value="-1.5"></div>
 <canvas id="c3b"></canvas>
 <div class="readout">
-<div class="chip">f(x)<b id="fxOut"></b></div>
-<div class="chip">f&prime;(x) = kemiringan<b id="fpxOut"></b></div>
+<div class="chip">\(f(x)\)<b id="fxOut"></b></div>
+<div class="chip">\(f'(x)\) = kemiringan<b id="fpxOut"></b></div>
 </div>
 
   </div>
@@ -94,6 +106,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -167,6 +184,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -186,6 +204,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -194,6 +213,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -224,6 +244,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -267,17 +288,18 @@ initTabs();
 
 (function(){
   const pairs=[
-    ["f(x) = x&sup2;","f '(x) = 2x"],
-    ["f(x) = x&sup3;","f '(x) = 3x&sup2;"],
-    ["f(x) = 1/x","f '(x) = &minus;1/x&sup2;"],
-    ["f(x) = &radic;x","f '(x) = 1/(2&radic;x)"],
-    ["f(x) = x&sup2; + 3x","f '(x) = 2x + 3"],
-    ["f(x) = 5 (konstan)","f '(x) = 0"],
-    ["f(x) = 4x","f '(x) = 4"]
+    ["\\(f(x) = x^2\\)","\\(f'(x) = 2x\\)"],
+    ["\\(f(x) = x^3\\)","\\(f'(x) = 3x^2\\)"],
+    ["\\(f(x) = 1/x\\)","\\(f'(x) = -1/x^2\\)"],
+    ["\\(f(x) = \\sqrt{x}\\)","\\(f'(x) = 1/(2\\sqrt{x})\\)"],
+    ["\\(f(x) = x^2 + 3x\\)","\\(f'(x) = 2x + 3\\)"],
+    ["\\(f(x) = 5\\) (konstan)","\\(f'(x) = 0\\)"],
+    ["\\(f(x) = 4x\\)","\\(f'(x) = 4\\)"]
   ];
   new MatchEngine($('#gameRoot'), pairs);
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>

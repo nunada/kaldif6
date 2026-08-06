@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Laju Perubahan Rata-Rata dan Sesaat</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
@@ -19,13 +31,13 @@
   <div class="panel active" id="panelA">
     
 <h2 class="sect">Posisi vs Waktu</h2>
-<p>Geser t<sub>0</sub> dan &Delta;t untuk melihat laju perubahan rata-rata posisi s(t)=t&sup2;&minus;4t+3 pada selang [t<sub>0</sub>, t<sub>0</sub>+&Delta;t] mendekati laju perubahan sesaat saat &Delta;t &rarr; 0.</p>
+<p>Geser \(t_0\) dan \(\Delta t\) untuk melihat laju perubahan rata-rata posisi \(s(t)=t^2-4t+3\) pada selang \([t_0, t_0+\Delta t]\) mendekati laju perubahan sesaat saat \(\Delta t 	o 0\).</p>
 <canvas id="c8"></canvas>
-<div class="controls"><label>t<sub>0</sub> = <span id="t0Val"></span></label><input type="range" id="t0Slider" min="0" max="3.5" step="0.1" value="1"></div>
-<div class="controls"><label>&Delta;t = <span id="dtVal"></span></label><input type="range" id="dtSlider" min="0.05" max="2.5" step="0.05" value="1.5"></div>
+<div class="controls"><label>\(t_0\) = <span id="t0Val"></span></label><input type="range" id="t0Slider" min="0" max="3.5" step="0.1" value="1"></div>
+<div class="controls"><label>\(\Delta t\) = <span id="dtVal"></span></label><input type="range" id="dtSlider" min="0.05" max="2.5" step="0.05" value="1.5"></div>
 <div class="readout">
 <div class="chip">Laju rata-rata<b id="avgOut"></b></div>
-<div class="chip">Laju sesaat di t<sub>0</sub><b id="instOut"></b></div>
+<div class="chip">Laju sesaat di \(t_0\)<b id="instOut"></b></div>
 </div>
 
   </div>
@@ -94,6 +106,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -167,6 +184,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -186,6 +204,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -194,6 +213,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -224,6 +244,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -269,9 +290,9 @@ initTabs();
     {q:"Jika kecepatan sesaat benda negatif, artinya benda&hellip;",choices:["Diam","Bergerak ke arah positif","Bergerak ke arah negatif","Dipercepat"],correct:2},
     {q:"Laju perubahan rata-rata dihitung dari&hellip;",choices:["Hasil bagi selisih pada suatu selang","Nilai fungsi di satu titik saja","Turunan kedua","Nilai limit tak hingga"],correct:0},
     {q:"Laju perubahan sesaat adalah&hellip;",choices:["Limit laju rata-rata saat panjang selang menuju 0","Laju rata-rata pada selang yang sangat panjang","Nilai fungsi di titik akhir","Selalu bernilai positif"],correct:0},
-    {q:"Jika v(t0)=0 pada fungsi posisi, maka pada saat itu benda&hellip;",choices:["Bergerak sangat cepat","Berhenti sesaat","Dipercepat maksimum","Berada di posisi nol"],correct:1},
-    {q:"Satuan laju perubahan sesaat posisi terhadap waktu adalah&hellip;",choices:["meter","meter/detik","detik/meter","meter&sup2;"],correct:1},
-    {q:"Semakin kecil &Delta;t pada laju rata-rata, hasilnya semakin mendekati&hellip;",choices:["Nol","Laju sesaat","Tak hingga","Nilai fungsi awal"],correct:1},
+    {q:"Jika \\(v(t_0)=0\\) pada fungsi posisi, maka pada saat itu benda&hellip;",choices:["Bergerak sangat cepat","Berhenti sesaat","Dipercepat maksimum","Berada di posisi nol"],correct:1},
+    {q:"Satuan laju perubahan sesaat posisi terhadap waktu adalah&hellip;",choices:["meter","meter/detik","detik/meter","\\(\\text{meter}^2\\)"],correct:1},
+    {q:"Semakin kecil \\(\\Delta t\\) pada laju rata-rata, hasilnya semakin mendekati&hellip;",choices:["Nol","Laju sesaat","Tak hingga","Nilai fungsi awal"],correct:1},
     {q:"Jika grafik posisi mendatar (kemiringan nol) pada suatu selang waktu, benda tersebut&hellip;",choices:["Bergerak cepat","Diam pada selang itu","Berbalik arah dengan cepat","Dipercepat"],correct:1},
     {q:"Konsep laju perubahan sesaat berlaku untuk&hellip;",choices:["Hanya posisi terhadap waktu","Sembarang besaran yang dinyatakan sebagai fungsi dari besaran lain","Hanya fungsi trigonometri","Hanya fungsi linear"],correct:1},
     {q:"Grafik s(t) yang menurun berarti kecepatan sesaatnya&hellip;",choices:["Positif","Negatif","Nol","Tak terdefinisi"],correct:1},
@@ -280,6 +301,7 @@ initTabs();
   new QuizEngine($('#gameRoot'), qs);
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>

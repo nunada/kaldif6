@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aplikasi pada Berbagai Bidang</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
@@ -22,9 +34,9 @@
 <p>Pilih bidang, geser variabelnya, dan lihat interpretasi turunan secara otomatis.</p>
 <div class="controls"><label>Bidang</label>
 <select id="fieldSel">
-<option value="0">Fisika &mdash; posisi s(t) = t&sup2;&minus;4t+3</option>
-<option value="1">Ekonomi &mdash; biaya B(x) = 0,01x&sup3;&minus;0,6x&sup2;+13x+100</option>
-<option value="2">Biologi &mdash; populasi N(t) = 1000+200t&minus;5t&sup2;</option>
+<option value="0">Fisika &mdash; posisi s(t) = t^2-4t+3</option>
+<option value="1">Ekonomi &mdash; biaya B(x) = 0,01x^3-0,6x^2+13x+100</option>
+<option value="2">Biologi &mdash; populasi N(t) = 1000+200t-5t^2</option>
 </select></div>
 <canvas id="c9"></canvas>
 <div class="controls"><label>Variabel: <span id="varVal"></span></label><input type="range" id="varSlider" min="0" max="40" step="0.5" value="10"></div>
@@ -97,6 +109,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -170,6 +187,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -189,6 +207,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -197,6 +216,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -227,6 +247,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -276,20 +297,21 @@ initTabs();
 
 (function(){
   const qs=[
-    {q:"B'(x) dalam ekonomi disebut&hellip;",choices:["Biaya rata-rata","Biaya marjinal","Biaya tetap","Pendapatan total"],correct:1},
-    {q:"N'(t) yang bernilai negatif pada model populasi berarti&hellip;",choices:["Populasi bertambah","Populasi berkurang","Populasi konstan","Populasi tak terhingga"],correct:1},
-    {q:"C'(t) pada konteks kimia menyatakan&hellip;",choices:["Volume reaksi","Laju reaksi sesaat","Suhu reaksi","Tekanan gas"],correct:1},
-    {q:"Jika B'(x) = 5, artinya perkiraan biaya untuk memproduksi satu unit tambahan adalah&hellip;",choices:["5","1/5","x/5","tidak bisa ditentukan"],correct:0},
+    {q:"\\(B'(x)\\) dalam ekonomi disebut&hellip;",choices:["Biaya rata-rata","Biaya marjinal","Biaya tetap","Pendapatan total"],correct:1},
+    {q:"\\(N'(t)\\) yang bernilai negatif pada model populasi berarti&hellip;",choices:["Populasi bertambah","Populasi berkurang","Populasi konstan","Populasi tak terhingga"],correct:1},
+    {q:"\\(C'(t)\\) pada konteks kimia menyatakan&hellip;",choices:["Volume reaksi","Laju reaksi sesaat","Suhu reaksi","Tekanan gas"],correct:1},
+    {q:"Jika \\(B'(x) = 5\\), artinya perkiraan biaya untuk memproduksi satu unit tambahan adalah&hellip;",choices:["5","1/5","x/5","tidak bisa ditentukan"],correct:0},
     {q:"'Pendapatan marjinal' adalah turunan dari&hellip;",choices:["Fungsi biaya","Fungsi permintaan","Fungsi pendapatan total","Fungsi laba rata-rata"],correct:2},
-    {q:"Pada model populasi N(t)=1000+200t&minus;5t&sup2;, populasi maksimum terjadi saat&hellip;",choices:["N(t)=0","N'(t)=0","N''(t)=0 selalu","t=0"],correct:1},
-    {q:"v(t0) = s'(t0) menyatakan&hellip;",choices:["Percepatan pada t0","Kecepatan sesaat pada t0","Posisi pada t0","Jarak total"],correct:1},
-    {q:"Dalam biologi, jika N'(t) > 0 maka populasi sedang&hellip;",choices:["Menyusut","Bertambah","Konstan","Punah"],correct:1},
+    {q:"Pada model populasi \\(N(t)=1000+200t-5t^2\\), populasi maksimum terjadi saat&hellip;",choices:["\\(N(t)=0\\)","\\(N'(t)=0\\)","\\(N''(t)=0\\) selalu","\\(t=0\\)"],correct:1},
+    {q:"\\(v(t_0) = s'(t_0)\\) menyatakan&hellip;",choices:["Percepatan pada \\(t_0\\)","Kecepatan sesaat pada \\(t_0\\)","Posisi pada \\(t_0\\)","Jarak total"],correct:1},
+    {q:"Dalam biologi, jika \\(N'(t) > 0\\) maka populasi sedang&hellip;",choices:["Menyusut","Bertambah","Konstan","Punah"],correct:1},
     {q:"Manakah bidang yang TIDAK dibahas sebagai aplikasi turunan pada Sub-bab 6.4?",choices:["Fisika","Ekonomi","Biologi","Astronomi"],correct:3},
-    {q:"Laba marjinal L'(x) paling tepat digunakan untuk&hellip;",choices:["Memperkirakan tambahan laba dari satu unit produksi berikutnya","Menentukan harga jual tetap","Menghitung total pendapatan","Mengukur suhu produksi"],correct:0}
+    {q:"Laba marjinal \\(L'(x)\\) paling tepat digunakan untuk&hellip;",choices:["Memperkirakan tambahan laba dari satu unit produksi berikutnya","Menentukan harga jual tetap","Menghitung total pendapatan","Mengukur suhu produksi"],correct:0}
   ];
   new QuizEngine($('#gameRoot'), qs);
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>

@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Turunan Fungsi Hiperbolik</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
@@ -18,13 +30,13 @@
   </div>
   <div class="panel active" id="panelA">
     
-<h2 class="sect">Dari e<sup>x</sup> ke sinh x dan cosh x</h2>
-<p>Kurva hijau muda adalah e<sup>x</sup>/2 dan e<sup>&minus;x</sup>/2. Jumlah keduanya membentuk cosh x (navy); selisihnya membentuk sinh x (merah).</p>
+<h2 class="sect">Dari \(e^x\) ke \(\sinh x\) dan \(\cosh x\)</h2>
+<p>Kurva hijau muda adalah \(e^x/2\) dan \(e^{-x}/2\). Jumlah keduanya membentuk \(\cosh x\) (navy); selisihnya membentuk \(\sinh x\) (merah).</p>
 <canvas id="c14"></canvas>
 <div class="controls"><label>Tampilkan: </label>
-<select id="hypSel"><option value="both">sinh x dan cosh x</option><option value="parts">Komponen e<sup>x</sup>/2 dan e<sup>&minus;x</sup>/2</option></select></div>
+<select id="hypSel"><option value="both">sinh x dan cosh x</option><option value="parts">Komponen eˣ/2 dan e⁻ˣ/2</option></select></div>
 <div class="controls"><label>x = <span id="xVal14"></span></label><input type="range" id="xSlider14" min="-2" max="2" step="0.05" value="1"></div>
-<div class="readout"><div class="chip">sinh x<b id="sinhOut"></b></div><div class="chip">cosh x<b id="coshOut"></b></div></div>
+<div class="readout"><div class="chip">\(\sinh x\)<b id="sinhOut"></b></div><div class="chip">\(\cosh x\)<b id="coshOut"></b></div></div>
 
   </div>
   <div class="panel" id="panelB">
@@ -92,6 +104,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -165,6 +182,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -184,6 +202,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -192,6 +211,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -222,6 +242,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -265,20 +286,21 @@ initTabs();
 
 (function(){
   const qs=[
-    {q:"sinh x didefinisikan sebagai&hellip;",choices:["(e<sup>x</sup>+e<sup>&minus;x</sup>)/2","(e<sup>x</sup>&minus;e<sup>&minus;x</sup>)/2","e<sup>x</sup>&middot;e<sup>&minus;x</sup>","e<sup>x</sup>/e<sup>&minus;x</sup>"],correct:1},
-    {q:"cosh x didefinisikan sebagai&hellip;",choices:["(e<sup>x</sup>+e<sup>&minus;x</sup>)/2","(e<sup>x</sup>&minus;e<sup>&minus;x</sup>)/2","e<sup>x</sup>+e<sup>&minus;x</sup>","2e<sup>x</sup>"],correct:0},
-    {q:"D<sub>x</sub>[sinh x] = &hellip;",choices:["cosh x","&minus;cosh x","sinh x","&minus;sinh x"],correct:0},
-    {q:"D<sub>x</sub>[cosh x] = &hellip;",choices:["cosh x","&minus;cosh x","sinh x","&minus;sinh x"],correct:2},
+    {q:"\\(\\sinh x\\) didefinisikan sebagai&hellip;",choices:["\\(\\dfrac{e^x+e^{-x}}{2}\\)","\\(\\dfrac{e^x-e^{-x}}{2}\\)","\\(e^x\\cdot e^{-x}\\)","\\(e^x/e^{-x}\\)"],correct:1},
+    {q:"\\(\\cosh x\\) didefinisikan sebagai&hellip;",choices:["\\(\\dfrac{e^x+e^{-x}}{2}\\)","\\(\\dfrac{e^x-e^{-x}}{2}\\)","\\(e^x+e^{-x}\\)","\\(2e^x\\)"],correct:0},
+    {q:"\\(D_x[\\sinh x] = \\) &hellip;",choices:["\\(\\cosh x\\)","\\(-\\cosh x\\)","\\(\\sinh x\\)","\\(-\\sinh x\\)"],correct:0},
+    {q:"\\(D_x[\\cosh x] = \\) &hellip;",choices:["\\(\\cosh x\\)","\\(-\\cosh x\\)","\\(\\sinh x\\)","\\(-\\sinh x\\)"],correct:2},
     {q:"Berbeda dengan sin/cos, turunan sinh dan cosh&hellip;",choices:["Tidak memiliki tanda negatif","Selalu negatif","Selalu nol","Sama seperti sin dan cos"],correct:0},
-    {q:"D<sub>x</sub>[x cosh x] = &hellip;",choices:["cosh x + x sinh x","sinh x","x sinh x","cosh x"],correct:0},
-    {q:"Nilai cosh(0) = &hellip;",choices:["0","1","e","&minus;1"],correct:1},
-    {q:"Nilai sinh(0) = &hellip;",choices:["0","1","e","&minus;1"],correct:0},
-    {q:"D<sub>x</sub>[x cosh x &minus; sinh x] = &hellip;",choices:["x sinh x","x cosh x","sinh x","cosh x"],correct:0,explain:"Lihat kembali Contoh 6.30 pada buku."},
-    {q:"Fungsi hiperbolik dibangun dari kombinasi&hellip;",choices:["Fungsi trigonometri","Fungsi eksponensial e<sup>x</sup> dan e<sup>&minus;x</sup>","Fungsi logaritma","Fungsi akar"],correct:1}
+    {q:"\\(D_x[x\\cosh x] = \\) &hellip;",choices:["\\(\\cosh x + x\\sinh x\\)","\\(\\sinh x\\)","\\(x\\sinh x\\)","\\(\\cosh x\\)"],correct:0},
+    {q:"Nilai \\(\\cosh(0) = \\) &hellip;",choices:["0","1","e","-1"],correct:1},
+    {q:"Nilai \\(\\sinh(0) = \\) &hellip;",choices:["0","1","e","-1"],correct:0},
+    {q:"\\(D_x[x\\cosh x - \\sinh x] = \\) &hellip;",choices:["\\(x\\sinh x\\)","\\(x\\cosh x\\)","\\(\\sinh x\\)","\\(\\cosh x\\)"],correct:0,explain:"Lihat kembali Contoh 6.30 pada buku."},
+    {q:"Fungsi hiperbolik dibangun dari kombinasi&hellip;",choices:["Fungsi trigonometri","Fungsi eksponensial \\(e^x\\) dan \\(e^{-x}\\)","Fungsi logaritma","Fungsi akar"],correct:1}
   ];
   new QuizEngine($('#gameRoot'), qs);
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>

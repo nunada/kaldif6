@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aturan Hasil Kali dan Hasil Bagi</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
@@ -20,10 +32,10 @@
     
 <h2 class="sect">Penyusun Rumus</h2>
 <p>Pilih u(x) dan v(x), lalu lihat Aturan Hasil Kali dan Aturan Hasil Bagi terisi otomatis.</p>
-<div class="controls"><label>u(x)</label><select id="uSel"><option value="0">x</option><option value="1">x&sup2;</option><option value="2">x&sup3;</option><option value="3">1/x</option></select></div>
-<div class="controls"><label>v(x)</label><select id="vSel"><option value="0">x</option><option value="1">x&sup2;</option><option value="2">x&sup3;</option><option value="3">1/x</option></select></div>
-<div class="readout"><div class="chip" style="flex:2">Hasil Kali: D<sub>x</sub>[uv] = u'v+uv'<b id="prodOut"></b></div></div>
-<div class="readout"><div class="chip" style="flex:2">Hasil Bagi: D<sub>x</sub>[u/v] = (u'v&minus;uv')/v&sup2;<b id="quotOut"></b></div></div>
+<div class="controls"><label>u(x)</label><select id="uSel"><option value="0">x</option><option value="1">x²</option><option value="2">x³</option><option value="3">1/x</option></select></div>
+<div class="controls"><label>v(x)</label><select id="vSel"><option value="0">x</option><option value="1">x²</option><option value="2">x³</option><option value="3">1/x</option></select></div>
+<div class="readout"><div class="chip" style="flex:2">Hasil Kali: \(D_x[uv] = u'v+uv'\)<b id="prodOut"></b></div></div>
+<div class="readout"><div class="chip" style="flex:2">Hasil Bagi: \(D_x[u/v] = \dfrac{u'v-uv'}{v^2}\)<b id="quotOut"></b></div></div>
 
   </div>
   <div class="panel" id="panelB">
@@ -91,6 +103,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -164,6 +181,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -183,6 +201,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -191,6 +210,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -221,6 +241,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -245,13 +266,14 @@ initTabs();
 
 (function(){
   const opts=[
-    {label:"x", d:"1"}, {label:"x&sup2;", d:"2x"}, {label:"x&sup3;", d:"3x&sup2;"}, {label:"1/x", d:"&minus;1/x&sup2;"}
+    {label:"x", d:"1"}, {label:"x^2", d:"2x"}, {label:"x^3", d:"3x^2"}, {label:"1/x", d:"-1/x^2"}
   ];
   const uSel=$('#uSel'), vSel=$('#vSel');
   function update(){
     const u=opts[parseInt(uSel.value)], v=opts[parseInt(vSel.value)];
-    $('#prodOut').innerHTML = "("+u.d+")("+v.label+") + ("+u.label+")("+v.d+")";
-    $('#quotOut').innerHTML = "[("+u.d+")("+v.label+") &minus; ("+u.label+")("+v.d+")] / ("+v.label+")&sup2;";
+    $('#prodOut').innerHTML = "\\(("+u.d+")("+v.label+") + ("+u.label+")("+v.d+")\\)";
+    $('#quotOut').innerHTML = "\\(\\dfrac{("+u.d+")("+v.label+") - ("+u.label+")("+v.d+")}{("+v.label+")^2}\\)";
+    typesetMath(document.body);
   }
   uSel.addEventListener('change',update); vSel.addEventListener('change',update); update();
 })();
@@ -259,20 +281,21 @@ initTabs();
 
 (function(){
   const qs=[
-    {q:"D<sub>x</sub>[x&sup2;(x+1)] = &hellip;",choices:["3x&sup2;+2x","2x(x+1)+x&sup2;","x&sup2;+2x","2x+1"],correct:1,explain:"u'v+uv' = 2x(x+1)+x&sup2;(1), yang jika disederhanakan = 3x&sup2;+2x."},
-    {q:"D<sub>x</sub>[(x&sup2;&minus;1)/x] = &hellip;",choices:["1+1/x&sup2;","1&minus;1/x&sup2;","2x/x","(2x&middot;x&minus;(x&sup2;&minus;1))/x&sup2;"],correct:3,explain:"Bentuk mentahnya (u'v&minus;uv')/v&sup2; = (2x&middot;x&minus;(x&sup2;&minus;1)&middot;1)/x&sup2;, yang menyederhana ke 1+1/x&sup2;."},
-    {q:"Aturan Hasil Kali: D<sub>x</sub>[uv] = &hellip;",choices:["u'v'","u'v+uv'","u'v&minus;uv'","uv'"],correct:1},
-    {q:"Aturan Hasil Bagi: D<sub>x</sub>[u/v] = &hellip;",choices:["u'/v'","(u'v&minus;uv')/v&sup2;","(u'v+uv')/v&sup2;","u'v/v"],correct:1},
-    {q:"D<sub>x</sub>[x&middot;x&sup3;] paling mudah dihitung dengan&hellip;",choices:["Hanya Aturan Hasil Bagi","Aturan Hasil Kali, atau sederhanakan dulu jadi x&#8308;","Tidak bisa dihitung","Aturan rantai"],correct:1},
-    {q:"Syarat penting Aturan Hasil Bagi adalah&hellip;",choices:["u(x) &ne; 0","v(x) &ne; 0","u dan v harus polinomial","Tidak ada syarat"],correct:1},
-    {q:"D<sub>x</sub>[3x&sup2;(x&minus;5)] pada x=1 sama dengan&hellip;",choices:["3(2)(1&minus;5)+3(1)(1) = &minus;21","3(2)(1&minus;5) = &minus;24","3(1&minus;5) = &minus;12","3(2)(1) = 6"],correct:0,explain:"u=3x&sup2;,u'=6x; v=(x&minus;5),v'=1. Di x=1: 6(1)(&minus;4)+3(1)(1)=&minus;24+3=&minus;21."},
+    {q:"\\(D_x[x^2(x+1)] = \\) &hellip;",choices:["\\(3x^2+2x\\)","\\(2x(x+1)+x^2\\)","\\(x^2+2x\\)","\\(2x+1\\)"],correct:1,explain:"\\(u'v+uv' = 2x(x+1)+x^2(1)\\), yang jika disederhanakan \\(=3x^2+2x\\)."},
+    {q:"\\(D_x[(x^2-1)/x] = \\) &hellip;",choices:["\\(1+1/x^2\\)","\\(1-1/x^2\\)","\\(2x/x\\)","\\(\\dfrac{2x\\cdot x-(x^2-1)}{x^2}\\)"],correct:3,explain:"Bentuk mentahnya \\(\\dfrac{u'v-uv'}{v^2} = \\dfrac{2x\\cdot x-(x^2-1)\\cdot 1}{x^2}\\), yang menyederhana ke \\(1+1/x^2\\)."},
+    {q:"Aturan Hasil Kali: \\(D_x[uv] = \\) &hellip;",choices:["\\(u'v'\\)","\\(u'v+uv'\\)","\\(u'v-uv'\\)","\\(uv'\\)"],correct:1},
+    {q:"Aturan Hasil Bagi: \\(D_x[u/v] = \\) &hellip;",choices:["\\(u'/v'\\)","\\(\\dfrac{u'v-uv'}{v^2}\\)","\\(\\dfrac{u'v+uv'}{v^2}\\)","\\(u'v/v\\)"],correct:1},
+    {q:"\\(D_x[x\\cdot x^3]\\) paling mudah dihitung dengan&hellip;",choices:["Hanya Aturan Hasil Bagi","Aturan Hasil Kali, atau sederhanakan dulu jadi \\(x^4\\)","Tidak bisa dihitung","Aturan rantai"],correct:1},
+    {q:"Syarat penting Aturan Hasil Bagi adalah&hellip;",choices:["\\(u(x) \\neq 0\\)","\\(v(x) \\neq 0\\)","u dan v harus polinomial","Tidak ada syarat"],correct:1},
+    {q:"\\(D_x[3x^2(x-5)]\\) pada \\(x=1\\) sama dengan&hellip;",choices:["\\(3(2)(1-5)+3(1)(1) = -21\\)","\\(3(2)(1-5) = -24\\)","\\(3(1-5) = -12\\)","\\(3(2)(1) = 6\\)"],correct:0,explain:"\\(u=3x^2,u'=6x\\); \\(v=(x-5),v'=1\\). Di \\(x=1\\): \\(6(1)(-4)+3(1)(1)=-24+3=-21\\)."},
     {q:"Trik pembuktian Aturan Hasil Kali adalah&hellip;",choices:["Mengalikan dengan sekawan","Menambah dan mengurangkan suku yang sama","Menggunakan Teorema Binomial","Substitusi trigonometri"],correct:1},
-    {q:"D<sub>x</sub>[(2x+1)/(x&sup2;)] memerlukan&hellip;",choices:["Aturan Hasil Bagi","Aturan Rantai saja","Aturan Konstanta saja","Tidak perlu aturan apa pun"],correct:0},
-    {q:"Jika u dan v konstan (tidak bergantung x), maka D<sub>x</sub>[uv] = &hellip;",choices:["uv","0","u+v","1"],correct:1}
+    {q:"\\(D_x[(2x+1)/x^2]\\) memerlukan&hellip;",choices:["Aturan Hasil Bagi","Aturan Rantai saja","Aturan Konstanta saja","Tidak perlu aturan apa pun"],correct:0},
+    {q:"Jika u dan v konstan (tidak bergantung x), maka \\(D_x[uv] = \\) &hellip;",choices:["\\(uv\\)","0","\\(u+v\\)","1"],correct:1}
   ];
   new QuizEngine($('#gameRoot'), qs);
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>

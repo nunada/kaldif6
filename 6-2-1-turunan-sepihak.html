@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Turunan Sepihak</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']],
+    packages: {'[+]': ['base','ams']}
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 <header class="top">
@@ -25,8 +37,8 @@
 <canvas id="c4"></canvas>
 <div class="controls"><label>|h| = <span id="hVal4"></span></label><input type="range" id="hSlider4" min="0.02" max="1.5" step="0.02" value="1"></div>
 <div class="readout">
-<div class="chip">Kiri: [f(c&minus;h)&minus;f(c)]/(&minus;h)<b id="qlOut"></b></div>
-<div class="chip">Kanan: [f(c+h)&minus;f(c)]/h<b id="qrOut"></b></div>
+<div class="chip">Kiri: \(\dfrac{f(c-h)-f(c)}{-h}\)<b id="qlOut"></b></div>
+<div class="chip">Kanan: \(\dfrac{f(c+h)-f(c)}{h}\)<b id="qrOut"></b></div>
 </div>
 <div class="note" id="verdict4"></div>
 
@@ -96,6 +108,11 @@ function $(sel,root){return (root||document).querySelector(sel);}
 function $all(sel,root){return Array.from((root||document).querySelectorAll(sel));}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function fmt(n,d){ if(!isFinite(n)) return "—"; d=(d===undefined)?2:d; return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace(".",","); }
+function typesetMath(el){
+  if(window.MathJax && MathJax.typesetPromise){
+    MathJax.typesetPromise([el||document.body]).catch(function(e){ console.error("MathJax typeset error:", e); });
+  }
+}
 
 function initTabs(){
   $all(".tab-btn").forEach(btn=>{
@@ -169,6 +186,7 @@ class QuizEngine{
     $all(".quiz-choice",this.container).forEach(btn=>{
       btn.addEventListener("click",()=>this.answer(parseInt(btn.dataset.idx),btn));
     });
+    typesetMath(this.container);
   }
   answer(idx,btn){
     const q=this.questions[this.i];
@@ -188,6 +206,7 @@ class QuizEngine{
     next.className="btn-next"; next.textContent=(this.i<this.questions.length-1)?"Lanjut →":"Lihat Hasil";
     next.onclick=()=>{ this.i++; this.render(); };
     fb.appendChild(document.createElement("br")); fb.appendChild(next);
+    typesetMath(fb);
   }
   renderEnd(){
     const pct=Math.round(100*this.score/(this.questions.length*10));
@@ -196,6 +215,7 @@ class QuizEngine{
       '<div>Skor akhir &bull; Rentetan terbaik 🔥'+this.best+'</div><p>'+msg+'</p>'+
       '<button class="btn-next" id="restartBtn">Main Lagi</button></div>';
     $("#restartBtn",this.container).onclick=()=>{ this.questions=shuffle(this.questions); this.i=0;this.score=0;this.streak=0; this.render(); };
+    typesetMath(this.container);
   }
 }
 
@@ -226,6 +246,7 @@ class MatchEngine{
       this.container.appendChild(done);
       $("#mrestart",this.container).onclick=()=>{ this.matched=new Set(); this.moves=0; this.selL=null; this.selR=null; this.left=shuffle(this.pairs.map((p,i)=>({k:i,t:p[0]}))); this.right=shuffle(this.pairs.map((p,i)=>({k:i,t:p[1]}))); this.render(); };
     }
+    typesetMath(this.container);
   }
   pick(side,k,btn){
     if(this.matched.has(k)&&btn.classList.contains("matched")) return;
@@ -279,20 +300,21 @@ initTabs();
 
 (function(){
   const qs=[
-    {q:"Turunan kiri fungsi f di titik c dinotasikan&hellip;",choices:["f '(c)","f '&#8722;(c)","f ''(c)","f(c)"],correct:1},
-    {q:"Fungsi f terdiferensialkan di c jika dan hanya jika&hellip;",choices:["f kontinu di c","Turunan kiri dan kanan ada dan sama","Turunan kiri saja ada","f(c) = 0"],correct:1},
-    {q:"Untuk f(x)=|x| di x=0, turunan kirinya adalah&hellip;",choices:["1","&minus;1","0","tak terdefinisi (tak hingga)"],correct:1},
-    {q:"Untuk f(x)=|x| di x=0, turunan kanannya adalah&hellip;",choices:["1","&minus;1","0","tak terdefinisi"],correct:0},
-    {q:"Karena turunan kiri &ne; turunan kanan pada |x| di 0, maka&hellip;",choices:["f tidak kontinu di 0","f tidak terdiferensialkan di 0","f'(0) = 0","f naik tak hingga"],correct:1},
+    {q:"Turunan kiri fungsi f di titik c dinotasikan&hellip;",choices:["\\(f'(c)\\)","\\(f'_{-}(c)\\)","\\(f''(c)\\)","\\(f(c)\\)"],correct:1},
+    {q:"Fungsi f terdiferensialkan di c jika dan hanya jika&hellip;",choices:["f kontinu di c","Turunan kiri dan kanan ada dan sama","Turunan kiri saja ada","\\(f(c) = 0\\)"],correct:1},
+    {q:"Untuk \\(f(x)=|x|\\) di \\(x=0\\), turunan kirinya adalah&hellip;",choices:["1","-1","0","tak terdefinisi (tak hingga)"],correct:1},
+    {q:"Untuk \\(f(x)=|x|\\) di \\(x=0\\), turunan kanannya adalah&hellip;",choices:["1","-1","0","tak terdefinisi"],correct:0},
+    {q:"Karena turunan kiri \\(\\neq\\) turunan kanan pada \\(|x|\\) di 0, maka&hellip;",choices:["f tidak kontinu di 0","f tidak terdiferensialkan di 0","\\(f'(0) = 0\\)","f naik tak hingga"],correct:1},
     {q:"Jika turunan kiri dan kanan suatu fungsi di suatu titik SAMA, maka&hellip;",choices:["Fungsi pasti tidak kontinu","Fungsi terdiferensialkan di titik itu dengan nilai turunan tersebut","Fungsi harus konstan","Tidak bisa disimpulkan apa-apa"],correct:1},
     {q:"Syarat keberadaan turunan sepihak berkaitan erat dengan konsep apa pada Bab 5?",choices:["Kekontinuan fungsi eksponensial","Limit satu arah (limit kiri dan kanan)","Deret tak hingga","Fungsi invers"],correct:1},
-    {q:"Pada Contoh 6.6 (f(x)=x&sup2; untuk x&le;1, 3x&minus;2 untuk x>1), turunan kiri di x=1 adalah&hellip;",choices:["3","2","1","0"],correct:1},
-    {q:"Pada Contoh 6.6, turunan kanan di x=1 adalah&hellip;",choices:["3","2","1","0"],correct:0},
-    {q:"Karena kedua turunan sepihak pada Contoh 6.6 berbeda (2 dan 3), grafiknya memiliki&hellip; di x=1",choices:["Titik loncatan (diskontinu)","Sudut tajam (meski kontinu)","Singgung vertikal","Tidak ada keanehan"],correct:1}
+    {q:"Pada Contoh 6.6 \\((f(x)=x^2\\) untuk \\(x\\le 1\\), \\(3x-2\\) untuk \\(x>1)\\), turunan kiri di \\(x=1\\) adalah&hellip;",choices:["3","2","1","0"],correct:1},
+    {q:"Pada Contoh 6.6, turunan kanan di \\(x=1\\) adalah&hellip;",choices:["3","2","1","0"],correct:0},
+    {q:"Karena kedua turunan sepihak pada Contoh 6.6 berbeda (2 dan 3), grafiknya memiliki&hellip; di \\(x=1\\)",choices:["Titik loncatan (diskontinu)","Sudut tajam (meski kontinu)","Singgung vertikal","Tidak ada keanehan"],correct:1}
   ];
   new QuizEngine($('#gameRoot'), qs);
 })();
 
+typesetMath(document.body);
 </script>
 </body>
 </html>
